@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
+  }
+}
+
+
+:root {
+  color-scheme: dark;
+  --bg: #020617;
+  --bg-elevated: rgba(255, 255, 255, 0.04);
+  --text: #e2e8f0;
+  --text-muted: #94a3b8;
+  --border: rgba(255, 255, 255, 0.12);
+  --accent-primary: #00f0ff;
+  --accent-secondary: #39ff14;
+  --spotlight: rgba(0, 240, 255, 0.14);
+  --grid-line: rgba(255, 255, 255, 0.06);
+  --glow: 0 0 40px rgba(0, 240, 255, 0.35);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', 'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+.dark body {
+  background: var(--bg);
+}
+
+.precision-grid-dark,
+.precision-grid-light {
+  background-image: radial-gradient(circle at 20% 20%, rgba(0, 240, 255, 0.08), transparent 32%),
+    radial-gradient(circle at 80% 0%, rgba(57, 255, 20, 0.08), transparent 28%),
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 120px 120px, 120px 120px;
+}
+
+.glass-surface {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+  border: 1px solid var(--border);
+  box-shadow: 0 30px 80px -40px rgba(0, 0, 0, 0.65), var(--glow);
+  backdrop-filter: blur(16px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Infinite Marquee Animation */
+@keyframes marquee-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes marquee-scroll-seamless {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-1984px);
+  }
+}

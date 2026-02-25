@@ -1,0 +1,432 @@
+﻿{
+  "meta": {
+    "title": "New Lab Specialized | Medical Laboratory in Sana'a",
+    "description": "High-authority medical laboratory delivering accredited diagnostics, calm patient experience, and physician-grade reporting in Sana'a.",
+    "keywords": "medical laboratory, diagnostics, blood tests, Sana'a, Yemen, accredited lab",
+    "siteName": "New Lab Specialized"
+  },
+  "nav": {
+    "brand": "New Lab Specialized",
+    "links": {
+      "home": "Home",
+      "overview": "Overview",
+      "services": "Tests",
+      "testDirectory": "Test Directory",
+      "process": "Process",
+      "coverage": "Coverage",
+      "results": "Results",
+      "doctors": "For Doctors",
+      "education": "Insights",
+      "contact": "Contact"
+    },
+    "book": "Book",
+    "language": "AR",
+    "theme": "Theme"
+  },
+  "hero": {
+    "systemLabel": "System status",
+    "headline": "Advanced Diagnostic Laboratory",
+    "subline": "System-driven diagnostics with controlled precision.",
+    "primary": "Book",
+    "secondary": "View capability deck"
+  },
+  "trust": {
+    "label": "Accredited & validated",
+    "items": [
+      "ISO 15189 methods",
+      "External quality assurance",
+      "Doctor-on-call for interpretations"
+    ]
+  },
+  "services": {
+    "title": "Smart catalog preview",
+    "subtitle": "Targeted test clusters for rapid decision-making.",
+    "doctorLabel": "For doctors",
+    "fullDirectory": "Full tests directory",
+    "cards": [
+      {
+        "name": "Blood",
+        "patient": "Checks CBC, anemia, infection flags.",
+        "doctor": "Specimen: EDTA | TAT: 2h | Reference: age/sex specific"
+      },
+      {
+        "name": "Hormones",
+        "patient": "Balances thyroid, fertility, adrenal health.",
+        "doctor": "Specimen: Serum | TAT: 6h | Reference: method-specific"
+      },
+      {
+        "name": "Vitamins",
+        "patient": "Clarifies vitamin D/B12 levels and absorption.",
+        "doctor": "Specimen: Serum | TAT: 8h | Reference: assay-calibrated"
+      },
+      {
+        "name": "Chronic disease",
+        "patient": "Monitors diabetes, cardiac risk, renal profile.",
+        "doctor": "Specimen: Plasma/Serum | TAT: 4-8h | Reference: clinical cutoffs"
+      },
+      {
+        "name": "Special tests",
+        "patient": "Autoimmune, infectious serology, tumor markers.",
+        "doctor": "Specimen: Serum/CSF | TAT: 24h | Reference: kit-specific"
+      }
+    ]
+  },
+  "process": {
+    "title": "Standard operating process",
+    "subtitle": "Each step tracked, verified, and logged for traceability.",
+    "steps": [
+      {"name": "Registration", "detail": "Identity, consent, and clinical notes captured."},
+      {"name": "Sampling", "detail": "Phlebotomy with barcode chain-of-custody."},
+      {"name": "Analysis", "detail": "Calibrated analyzers with dual controls."},
+      {"name": "QC Review", "detail": "Delta checks, rule-based QC, senior validation."},
+      {"name": "Report Issuance", "detail": "Signed reports delivered securely."}
+    ]
+  },
+  "coverage": {
+    "title": "Distribution & home coverage",
+    "subtitle": "Serving Sana'a with rapid courier pick-up and mobile phlebotomy.",
+    "mapLabel": "Sana'a service radius & home collection",
+    "branches": [
+      "Main branch: Hadda Street, Sana'a",
+      "Satellite: Al Tahrir district",
+      "Collection points across city"
+    ],
+    "cta": "Request home visit"
+  },
+
+  "doctors": {
+    "title": "For physicians",
+    "points": [
+      "Direct line to lab specialists for clarifications.",
+      "Interpretive comments for complex markers.",
+      "Consistent methodology across panels."
+    ],
+    "guide": "Download test guide (PDF)"
+  },
+  "education": {
+    "title": "Education & insights",
+    "cards": [
+      {"title": "How to read CBC", "detail": "Key flags, morphology tips, and when to repeat."},
+      {"title": "When fasting matters", "detail": "Optimize lipid, glucose, and hormone accuracy."},
+      {"title": "Understanding vitamin D", "detail": "Cutoffs, deficiency risks, and monitoring."}
+    ]
+  },
+  "finalCta": {
+    "title": "Precision diagnostics, centered on care.",
+    "subtitle": "Schedule a visit or request a home collection today.",
+    "primary": "Book a test",
+    "secondary": "Talk to our team"
+  },
+  "stats": {
+    "title": "TRUSTED BY THOUSANDS",
+    "subtitle": "The numbers speak for themselves",
+    "monthlySamples": "Monthly Samples",
+    "accuracy": "Accuracy",
+    "activeDoctors": "Trusted Doctors",
+    "yearsExperience": "Years Experience",
+    "partnersTitle": "TRUSTED PARTNERS"
+  },
+  "locations": {
+    "title": "FIND US",
+    "subtitle": "Our Locations",
+    "description": "Visit our state-of-the-art facilities across the city",
+    "mainCenterBadge": "Main Center",
+    "getDirections": "Get Directions",
+    "loadingMap": "Loading map...",
+    "mainBranch": "Main Branch",
+    "branches": {
+      "main": {
+        "name": "New Lab - Main Center",
+        "address": "Ring Road, Sanaa, Yemen"
+      },
+      "haddah": {
+        "name": "New Lab - Haddah Branch",
+        "address": "Haddah Street, Sanaa, Yemen"
+      },
+      "algeria": {
+        "name": "New Lab - Algeria Branch",
+        "address": "Algeria Street, Sanaa, Yemen"
+      }
+    }
+  },
+  "footer": {
+    "mission": "Delivering precision diagnostics and trusted results for over a decade. Your health is our priority.",
+    "patientServices": "Patient Services",
+    "forDoctors": "For Doctors",
+    "contactUs": "Contact Us",
+    "rights": "© 2026 New Lab Specialized. All rights reserved.",
+    "links": {
+      "bookTest": "Book a Test",
+      "viewResults": "View Results",
+      "testPackages": "Test Packages",
+      "faq": "FAQ",
+      "partnerPortal": "Partner Portal",
+      "testCatalog": "Test Catalog",
+      "testDirectory": "Test Directory",
+      "sampleCollection": "Sample Collection",
+      "contactSupport": "Contact Support",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "about": "About Us",
+      "media": "Media Center",
+      "certificates": "Accreditations",
+      "equipment": "Technology",
+      "mainBranch": "Main Branch"
+    }
+  },
+  "testDirectory": {
+    "title": "Comprehensive Test Directory",
+    "subtitle": "Browse our complete catalog of medical tests and diagnostic services",
+    "searchPlaceholder": "Search tests by name or code...",
+    "categories": {
+      "all": "All Tests",
+      "hematology": "Hematology",
+      "hormones": "Hormones",
+      "vitamins": "Vitamins",
+      "immunology": "Immunology",
+      "biochemistry": "Biochemistry",
+      "microbiology": "Microbiology"
+    },
+    "badges": {
+      "turnaround": "Turnaround",
+      "fasting": "Fasting Required",
+      "noFasting": "No Fasting"
+    },
+    "actions": {
+      "addToCart": "Add to Cart",
+      "bookNow": "Book Now"
+    },
+    "noResults": "No tests found matching your search",
+    "showingResults": "Showing {count} tests"
+  },
+  "results": {
+    "title": "Results & privacy",
+    "points": [
+      "Encrypted digital delivery with OTP access.",
+      "Physician-ready PDFs with reference ranges.",
+      "Patient summaries in clear language."
+    ],
+    "login": {
+      "title": "View Your Results",
+      "subtitle": "Enter your details to access your lab results securely",
+      "sampleId": "Sample ID",
+      "sampleIdPlaceholder": "Enter 10-digit sample ID",
+      "phone": "Phone Number",
+      "phonePlaceholder": "7XXXXXXXX",
+      "submit": "View Results",
+      "loading": "Verifying...",
+      "errors": {
+        "sampleIdRequired": "Sample ID is required",
+        "sampleIdInvalid": "Sample ID must be 10 digits",
+        "phoneRequired": "Phone number is required",
+        "phoneInvalid": "Phone number must start with 7"
+      }
+    },
+    "dashboard": {
+      "title": "Your Lab Results",
+      "patientInfo": "Patient Information",
+      "name": "Name",
+      "age": "Age",
+      "gender": "Gender",
+      "sampleDate": "Sample Date",
+      "reportDate": "Report Date",
+      "verifiedBy": "Verified by",
+      "downloadPdf": "Download PDF",
+      "testResults": "Test Results",
+      "value": "Value",
+      "unit": "Unit",
+      "referenceRange": "Reference Range",
+      "status": "Status",
+      "normal": "Normal",
+      "high": "High",
+      "low": "Low",
+      "critical": "Critical",
+      "years": "years",
+      "male": "Male",
+      "female": "Female"
+    },
+    "tests": {
+      "vitaminD": {
+        "name": "Vitamin D (25-OH)",
+        "unit": "ng/mL"
+      },
+      "hemoglobin": {
+        "name": "Hemoglobin",
+        "unit": "g/dL"
+      },
+      "wbc": {
+        "name": "White Blood Cells",
+        "unit": "×10³/μL"
+      },
+      "platelets": {
+        "name": "Platelets",
+        "unit": "×10³/μL"
+      },
+      "glucose": {
+        "name": "Fasting Glucose",
+        "unit": "mg/dL"
+      },
+      "cholesterol": {
+        "name": "Total Cholesterol",
+        "unit": "mg/dL"
+      }
+    }
+  },
+  "booking": {
+    "title": "Home Visit Booking",
+    "subtitle": "Professional lab services at your doorstep",
+    "steps": {
+      "location": "Location",
+      "tests": "Tests",
+      "schedule": "Schedule",
+      "confirm": "Confirm"
+    },
+    "location": {
+      "title": "Who & Where?",
+      "subtitle": "Tell us where to send our technician",
+      "nameLabel": "Full Name",
+      "namePlaceholder": "Patient's full name",
+      "phoneLabel": "Phone Number",
+      "phonePlaceholder": "7XXXXXXXX",
+      "typeLabel": "Location Type",
+      "types": {
+        "home": "Home",
+        "office": "Office"
+      },
+      "addressLabel": "Address Details",
+      "addressPlaceholder": "District, Street, Building, Apartment...",
+      "useCurrentLocation": "Use Current Location"
+    },
+    "tests": {
+      "title": "Choose Tests",
+      "subtitle": "Upload a prescription or select tests manually",
+      "uploadTab": "Upload Prescription",
+      "manualTab": "Select Tests",
+      "dragDrop": "Drag & drop your prescription here",
+      "orClick": "or click to browse",
+      "supports": "Supports: JPG, PNG, PDF",
+      "searchPlaceholder": "Search for tests (e.g. Vitamin D)...",
+      "popular": "Popular Tests",
+      "price": "YER"
+    },
+    "schedule": {
+      "title": "Pick a Time",
+      "subtitle": "Select a convenient date and time slot",
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "timeSlots": "Available Time Slots"
+    },
+    "confirmation": {
+      "title": "Review Booking",
+      "subtitle": "Please verify your details before confirming",
+      "patient": "Patient",
+      "address": "Address",
+      "tests": "Selected Tests",
+      "time": "Date & Time",
+      "prescriptionUploaded": "Prescription Uploaded",
+      "confirmButton": "Confirm Booking",
+      "processing": "Processing..."
+    },
+    "success": {
+      "title": "Booking Confirmed!",
+      "message": "We have received your request. Our team will contact you shortly to confirm."
+    },
+    "validation": {
+      "required": "Required",
+      "invalidPhone": "Invalid phone number"
+    },
+    "actions": {
+      "next": "Next Step",
+      "back": "Back"
+    }
+  },
+  "about": {
+    "title": "About Us",
+    "cta": {
+      "title": "Ready to experience world-class diagnostics?",
+      "book": "Book a Home Visit",
+      "explore": "Explore Tests"
+    },
+    "hero": {
+      "title": "Excellence in Diagnostics",
+      "subtitle": "Your trusted partner in health since 2015"
+    },
+    "values": {
+      "title": "Our Core Values",
+      "accuracy": "Accuracy",
+      "accuracyDesc": "Precision in every test result",
+      "integrity": "Integrity",
+      "integrityDesc": "Honest and transparent service",
+      "care": "Patient Care",
+      "careDesc": "Compassionate approach to healthcare"
+    },
+    "section": {
+      "tag": "WHO WE ARE",
+      "headline": "A Legacy of Diagnostic Leadership",
+      "motto": "Patient's Friend and Doctor's Trust",
+      "story": "Established in early 2015 in Sana'a, New Lab set out with a clear mission: to be the premier reference for diagnostic accuracy in Yemen. We combine cutting-edge technology with human-centric care.",
+      "vision": "To be the premier reference for diagnostic accuracy in Yemen, setting the standard for quality and reliability.",
+      "pillars": {
+        "tech": "Advanced Technology",
+        "techDesc": "Most efficient world-class equipment",
+        "env": "Comfortable Environment",
+        "envDesc": "Spacious facility designed for peace of mind",
+        "care": "Warm Reception",
+        "careDesc": "Professional care that puts you first",
+        "quality": "International Quality",
+        "qualityDesc": "ISO-certified standards of excellence"
+      }
+    }
+  },
+  "equipment": {
+    "title": "Our Technology Fleet",
+    "subtitle": "State-of-the-art diagnostic powerhouses driving precision.",
+    "cta": "View Specs",
+    "back": "Back to Technology",
+    "status": {
+      "online": "Operational Status: Online",
+      "maintenance": "Under Maintenance",
+      "offline": "Offline"
+    },
+    "specs": {
+      "speed": "Throughput Speed",
+      "accuracy": "Accuracy Rate",
+      "related": "Performed Tests"
+    },
+    "category": {
+      "immunology": "Immunology",
+      "hematology": "Hematology",
+      "chemistry": "Clinical Chemistry",
+      "molecular": "Molecular Biology"
+    }
+  },
+  "media": {
+    "news": {
+      "title": "Latest News",
+      "breadcrumb": "News",
+      "readMore": "Read full story"
+    },
+    "videos": {
+      "title": "Video Library",
+      "breadcrumb": "Videos",
+      "watch": "Watch Video"
+    },
+    "articles": {
+      "title": "Health Articles",
+      "breadcrumb": "Articles",
+      "readTime": "min read",
+      "author": "By"
+    }
+  },
+  "story": {
+    "headline": "Since 2015: A Legacy of Diagnostic Leadership",
+    "subheadline": "Patient's Friend and Doctor's Trust",
+    "body": "New Lab was established in early 2015 in Sana'a with a vision to lead diagnostic services in Yemen. We strive to be the most efficient in equipment, the most spacious in environment, and the warmest in reception, adhering to the highest international standards.",
+    "pillars": {
+      "equipment": "Efficient Equipment",
+      "space": "Spacious Environment",
+      "reception": "Warm Reception",
+      "standards": "International Standards"
+    }
+  }
+}

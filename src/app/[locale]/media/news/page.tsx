@@ -1,0 +1,29 @@
+import { NewsPageResponse } from '@/types/api';
+import NewsClient from '@/components/media/NewsClient';
+
+async function getNewsData(): Promise<NewsPageResponse['message']['message']['news'] | null> {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL ;
+  try {
+    const res = await fetch(`${apiUrl}/api/method/newlab_site.api.get_news`, {
+      next: { revalidate: 60 } // Revalidate every minute
+    });
+
+    if (!res.ok) {
+      console.error("Failed to fetch news data");
+      return null;
+    }
+    const data = await res.json();
+    return data.message.message.news;
+  } catch (error) {
+    console.error("Error fetching news data:", error);
+    return null;
+  }
+}
+
+export default async function NewsPage() {
+  const news = await getNewsData();
+  
+  return (
+    <NewsClient initialNews={news || []} />
+  );
+}
