@@ -20,7 +20,7 @@ const navLinks = [
   { key: "physicians", label: { en: "Physicians", ar: "الأطباء" }, href: "#physicians" },
   { key: "results", label: { en: "Results", ar: "النتائج" }, href: "#results" },
   { key: "contact", label: { en: "Contact", ar: "تواصل معنا" }, href: "#contact" },
-  { key: "assessment", label: { en: "assessment", ar: "التقييم الصحي الذكي" }, href: "#assessment" }
+  { key: "assessment", label: { en: "assessment", ar: "التقييم الصحي" }, href: "#assessment" }
 ];
 
 export function Navbar({ language, onLanguageChange, isRTL = false }: NavbarProps) {

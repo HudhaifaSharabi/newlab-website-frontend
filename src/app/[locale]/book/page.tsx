@@ -91,7 +91,7 @@ export default async function BookPage({
       <JsonLd data={bookJsonLd} />
       <BookingClient 
         initialTestId={searchParams.test}
-        initialCategories={data?.categories?.length ? data.categories : [{ id: 'all', name: 'All', nameAr: 'الكل' }]} 
+        initialCategories={data?.categories?.length ? data.categories : []} 
         initialTests={data?.tests || []} 
       />
     </>

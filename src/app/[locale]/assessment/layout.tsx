@@ -11,14 +11,14 @@ export async function generateMetadata({ params: { locale } }: { params: { local
   const url = `${siteBaseUrl}/${locale}/assessment`;
   
   return {
-    title: (locale === 'ar' ? seo?.title_ar : seo?.title_en) || (locale === 'ar' ? 'التقييم الصحي الذكي | نيو لاب' : 'Smart Health Assessment | New Lab'),
+    title: (locale === 'ar' ? seo?.title_ar : seo?.title_en) || (locale === 'ar' ? 'التقييم الصحي الذكي | نيو لاب' : 'Health Assessment | New Lab'),
     description: (locale === 'ar' ? seo?.description_ar : seo?.description_en) || (locale === 'ar' ? 'قم بإجراء تقييم صحي سريع لمعرفة الفحوصات المناسبة لك.' : 'Take a quick health assessment to find the right tests for you.'),
     keywords: (locale === 'ar' ? seo?.keywords_ar : seo?.keywords_en),
     alternates: {
       canonical: url,
     },
     openGraph: {
-      title: (locale === 'ar' ? seo?.title_ar : seo?.title_en) || (locale === 'ar' ? 'التقييم الصحي الذكي | نيو لاب' : 'Smart Health Assessment | New Lab'),
+      title: (locale === 'ar' ? seo?.title_ar : seo?.title_en) || (locale === 'ar' ? 'التقييم الصحي الذكي | نيو لاب' : 'Health Assessment | New Lab'),
       description: (locale === 'ar' ? seo?.description_ar : seo?.description_en) || (locale === 'ar' ? 'قم بإجراء تقييم صحي سريع لمعرفة الفحوصات المناسبة لك.' : 'Take a quick health assessment to find the right tests for you.'),
       url,
       images: seo?.og_image ? [{ url: seo.og_image }] : [],
@@ -38,8 +38,8 @@ export default async function AssessmentLayout({
   const assessmentJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
-    name: (locale === 'ar' ? seo?.title_ar : seo?.title_en) || (locale === 'ar' ? 'التقييم الصحي الذكي | نيو لاب' : 'Smart Health Assessment | New Lab'),
-    description: (locale === 'ar' ? seo?.description_ar : seo?.description_en) || (locale === 'ar' ? 'التقييم الصحي الذكي.' : 'Smart Health Assessment.'),
+    name: (locale === 'ar' ? seo?.title_ar : seo?.title_en) || (locale === 'ar' ? 'التقييم الصحي الذكي | نيو لاب' : 'Health Assessment | New Lab'),
+    description: (locale === 'ar' ? seo?.description_ar : seo?.description_en) || (locale === 'ar' ? 'التقييم الصحي الذكي.' : 'Health Assessment.'),
     url: `${siteBaseUrl}/${locale}/assessment`
   };
 

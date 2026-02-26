@@ -89,150 +89,18 @@ type StaticTemplateProps = {
 
 const contentByLocale: Record<Locale, StaticTemplateContent> = {
   en: {
-    eyebrow: "LAB WORKFLOW",
-    title: "From sample to insight, verified at every step.",
-    subtitle:
-      "Traceable chain-of-custody, calibrated analyzers, and senior review keep results fast and reliable.",
-    cover: {
-      src: "/lap3.jpg",
-      alt: "Automated lab analyzers",
-    },
-    sections: [
-      {
-        type: "highlights",
-        id: "capabilities",
-        heading: "Core capability clusters",
-        items: [
-          {
-            title: "Rapid panels",
-            desc: "Same-day CBC, chemistry, and infection screens with controlled turnaround.",
-            icon: "flask",
-          },
-          {
-            title: "Specialty immunology",
-            desc: "Autoimmune and serology panels with physician-grade interpretation.",
-            icon: "shield",
-          },
-          {
-            title: "Molecular diagnostics",
-            desc: "PCR workflows with contamination controls and strict validation.",
-            icon: "scope",
-          },
-        ],
-      },
-      {
-        type: "bullets",
-        id: "quality",
-        heading: "Quality controls",
-        items: [
-          "Barcode chain-of-custody on every specimen.",
-          "Two-level QC and external proficiency testing.",
-          "Delta checks and clinical flags before release.",
-          "Signed reports with reference ranges and notes.",
-        ],
-      },
-      {
-        type: "gallery",
-        id: "inside",
-        heading: "Inside the lab",
-        images: [
-          {
-            src: "/lap1.jpg",
-            alt: "Technician preparing samples",
-          },
-          {
-            src: "/lap2.jpg",
-            alt: "High-throughput analyzer",
-          },
-          {
-            src: "/lap4.jpg",
-            alt: "Quality control instrumentation",
-          },
-        ],
-      },
-      {
-        type: "cta",
-        heading: "Need results fast?",
-        desc: "Schedule a visit or request a home collection today.",
-        button: {
-          label: "Book a test",
-          href: "#book",
-        },
-      },
-    ],
+    eyebrow: "",
+    title: "",
+    subtitle: "",
+    cover: undefined,
+    sections: [],
   },
   ar: {
-    eyebrow: "مسار العمل",
-    title: "من العينة إلى النتيجة، توثيق كامل في كل خطوة.",
-    subtitle:
-      "سلسلة تتبع دقيقة، أجهزة معايرة، ومراجعة كبار المختصين لنتائج سريعة وموثوقة.",
-    cover: {
-      src: "/lap3.jpg",
-      alt: "أجهزة تحليل مخبرية آلية",
-    },
-    sections: [
-      {
-        type: "highlights",
-        id: "capabilities",
-        heading: "مجالاتنا الأساسية",
-        items: [
-          {
-            title: "فحوصات سريعة",
-            desc: "CBC والكيمياء وفحوصات العدوى بزمن إنجاز مضبوط.",
-            icon: "flask",
-          },
-          {
-            title: "مناعة تخصصية",
-            desc: "لوحات مناعية وسيرولوجيا مع تفسير طبي معتمد.",
-            icon: "shield",
-          },
-          {
-            title: "تشخيص جزيئي",
-            desc: "إجراءات PCR مع ضوابط تلوث وتحقيق صارم.",
-            icon: "scope",
-          },
-        ],
-      },
-      {
-        type: "bullets",
-        id: "quality",
-        heading: "ضبط الجودة",
-        items: [
-          "باركود وتتبع لكل عينة.",
-          "ضبط جودة بمستويين واختبارات كفاءة خارجية.",
-          "فحص دلتا وتنبيهات سريرية قبل الإصدار.",
-          "تقارير موقعة مع القيم المرجعية والملاحظات.",
-        ],
-      },
-      {
-        type: "gallery",
-        id: "inside",
-        heading: "داخل المختبر",
-        images: [
-          {
-            src: "/lap1.jpg",
-            alt: "فني يحضر العينات",
-          },
-          {
-            src: "/lap2.jpg",
-            alt: "جهاز تحليل عالي الإنتاجية",
-          },
-          {
-            src: "/lap4.jpg",
-            alt: "أجهزة ضبط الجودة",
-          },
-        ],
-      },
-      {
-        type: "cta",
-        heading: "تحتاج نتيجة بسرعة؟",
-        desc: "احجز زيارة أو اطلب سحب منزلي اليوم.",
-        button: {
-          label: "سحب منزلي",
-          href: "#book",
-        },
-      },
-    ],
+    eyebrow: "",
+    title: "",
+    subtitle: "",
+    cover: undefined,
+    sections: [],
   },
 };
 

@@ -175,36 +175,30 @@ export default function HeroWithAbout({
   const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const isRTL = locale === "ar";
-  const copy = content[locale] ?? content.en;
-  const navItemsActive = copy.nav.items;
-  // Use API data if available, fallback to local content structure (adapted to match API for ease)
+  
+  // Use API data, fallback to empty or skeleton-specific data
   const heroContent = heroData || {
-    kicker_en: copy.hero.kicker, kicker_ar: copy.hero.kicker,
-    title_en: copy.hero.title, title_ar: copy.hero.title,
-    accent_en: copy.hero.accent, accent_ar: copy.hero.accent,
-    description_en: copy.hero.body, description_ar: copy.hero.body,
-    primaryCta_en: copy.hero.ctaPrimary, primaryCta_ar: copy.hero.ctaPrimary, primaryCtaUrl: "/book",
-    secondaryCta_en: copy.hero.ctaSecondary, secondaryCta_ar: copy.hero.ctaSecondary, secondaryCtaUrl: "/capabilities",
-    statusIndicators_en: copy.hero.status, statusIndicators_ar: copy.hero.status,
-    slideshowImages: ["/lap1.jpg", "/lap2.jpg", "/lap4.jpg"],
+    kicker_en: "", kicker_ar: "",
+    title_en: "", title_ar: "",
+    accent_en: "", accent_ar: "",
+    description_en: "", description_ar: "",
+    primaryCta_en: "", primaryCta_ar: "", primaryCtaUrl: "",
+    secondaryCta_en: "", secondaryCta_ar: "", secondaryCtaUrl: "",
+    statusIndicators_en: [], statusIndicators_ar: [],
+    slideshowImages: [],
   };
-  const quickActionsContent = copy.quickActions;
+  
+  // Quick Actions can remain as they are generic UI navigation not CMS text usually, but if needed we can empty them.
+  const quickActionsContent = content[locale]?.quickActions || content.en.quickActions;
+  
   const aboutContent = aboutData || {
-    badge_en: copy.about.label, badge_ar: copy.about.label,
-    title_en: copy.about.heading, title_ar: copy.about.heading,
-    description_en: copy.about.body, description_ar: copy.about.body,
-    cards: copy.about.cards.map((c) => ({
-      tag_en: c.tag, tag_ar: c.tag,
-      title_en: c.title, title_ar: c.title,
-      description_en: c.body, description_ar: c.body,
-      image: c.image,
-      badges_en: ["Logged", "QC checkpoints", "Audit-ready"],
-      badges_ar: ["مسجل", "نقاط فحص الجودة", "جاهز للتدقيق"],
-    })),
+    badge_en: "", badge_ar: "",
+    title_en: "", title_ar: "",
+    description_en: "", description_ar: "",
+    cards: [],
   };
-  const aboutCards = aboutContent.cards;
-  const uiCopy = copy.ui;
-  const languageOptions: Language[] = isRTL ? ["ar", "en"] : ["en", "ar"];
+  
+  const aboutCards = aboutContent.cards || [];
   const activeTheme = mounted && resolvedTheme ? resolvedTheme : "dark";
   const isDark = activeTheme === "dark";
 

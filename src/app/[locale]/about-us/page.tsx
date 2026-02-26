@@ -63,13 +63,21 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
   const aboutData = await getAboutData(locale);
   
   if (!aboutData) {
-    // Fallback UI or simple error state
+    // Return a skeleton structure
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
          <AlternativeNavbar />
-         <div className="flex items-center justify-center p-24 text-center text-red-500">
-           Failed to load about page. Please try again later.
-         </div>
+         <main>
+           <section className="relative h-[400px] w-full bg-[#1a658d] dark:bg-slate-800 animate-pulse" />
+           <section className="py-24 max-w-7xl mx-auto px-6">
+              <div className="h-10 w-64 bg-slate-200 dark:bg-slate-800 rounded animate-pulse mb-8" />
+              <div className="space-y-4">
+                 <div className="h-4 w-full bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
+                 <div className="h-4 w-5/6 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
+                 <div className="h-4 w-4/6 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
+              </div>
+           </section>
+         </main>
          <NewLabFooter />
       </div>
     );

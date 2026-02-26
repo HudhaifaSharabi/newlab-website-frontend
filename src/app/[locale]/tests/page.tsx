@@ -63,7 +63,7 @@ export default async function Page({ params: { locale } }: { params: { locale: s
     <>
       <JsonLd data={testsJsonLd} />
       <TestDirectoryClient 
-        initialCategories={data?.categories || [{ id: 'all', name: 'All', nameAr: 'الكل' }]} 
+        initialCategories={data?.categories || []} 
         initialTests={data?.tests || []} 
       />
     </>

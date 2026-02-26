@@ -8,6 +8,7 @@ import clsx from 'clsx';
 import type {Metadata} from 'next';
 import {Cairo, Tajawal} from 'next/font/google';
 import FloatingContactWidget from '@/components/FloatingContactWidget';
+import GlobalLoader from '@/components/GlobalLoader';
 
 const cairo = Cairo({
   subsets: ['latin', 'arabic'],
@@ -65,6 +66,7 @@ export default async function LocaleLayout({
       >
         <NextIntlClientProvider locale={locale} messages={messages}>
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+            <GlobalLoader />
             <main className="min-h-screen font-sans">{children}</main>
             <FloatingContactWidget />
             <JsonLd data={jsonLd} />

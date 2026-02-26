@@ -76,3 +76,47 @@ body {
     transform: translateX(-1984px);
   }
 }
+
+/* ─── Brand Scrollbar ─── */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1a658d;
+  border-radius: 100px;
+  border: 2px solid #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #b9292f;
+}
+
+/* Dark mode scrollbar */
+.dark ::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #1a658d;
+  border-color: #0f172a;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #b9292f;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #1a658d #f1f5f9;
+}
+
+.dark * {
+  scrollbar-color: #1a658d #0f172a;
+}

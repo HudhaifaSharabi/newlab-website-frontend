@@ -24,78 +24,6 @@ type Package = {
   featuresAr: string[];
 };
 
-const packages: Package[] = [
-  {
-    id: "vitality",
-    name: "Vitality Checkup",
-    nameAr: "فحص الحيوية",
-    price: "299 SAR",
-    priceAr: "٢٩٩ ريال",
-    icon: "activity",
-    featured: false,
-    features: [
-      "Complete Blood Count (CBC)",
-      "Blood Sugar Level (Glucose)",
-      "Kidney Function Tests",
-      "Liver Function Panel",
-      "Results in 24 hours",
-    ],
-    featuresAr: [
-      "تعداد الدم الكامل (CBC)",
-      "مستوى السكر في الدم",
-      "فحوصات وظائف الكلى",
-      "فحوصات وظائف الكبد",
-      "النتائج في 24 ساعة",
-    ],
-  },
-  {
-    id: "comprehensive",
-    name: "Comprehensive Platinum",
-    nameAr: "الفحص الشامل البلاتيني",
-    price: "899 SAR",
-    priceAr: "٨٩٩ ريال",
-    icon: "sparkles",
-    featured: true,
-    features: [
-      "Full Body Scan & Analysis",
-      "Advanced Cardio Markers",
-      "Thyroid Complete Panel",
-      "Vitamin D & B12 Levels",
-      "Specialist Review Included",
-    ],
-    featuresAr: [
-      "فحص وتحليل كامل للجسم",
-      "علامات القلب المتقدمة",
-      "فحص الغدة الدرقية الكامل",
-      "مستويات فيتامين د و ب12",
-      "مراجعة الأخصائي مشمولة",
-    ],
-  },
-  {
-    id: "womens",
-    name: "Women's Wellness",
-    nameAr: "صحة المرأة",
-    price: "599 SAR",
-    priceAr: "٥٩٩ ريال",
-    icon: "heart",
-    featured: false,
-    features: [
-      "Hormonal Profile Complete",
-      "Iron & Ferritin Levels",
-      "Calcium & Vitamin Panel",
-      "Thyroid Function Tests",
-      "Fast Track Processing",
-    ],
-    featuresAr: [
-      "الملف الهرموني الكامل",
-      "مستويات الحديد والفيريتين",
-      "الكالسيوم وفيتامينات",
-      "فحوصات وظائف الغدة الدرقية",
-      "معالجة سريعة",
-    ],
-  },
-];
-
 const content = {
   en: {
     eyebrow: "HEALTH PACKAGES",
@@ -128,7 +56,7 @@ export function PackagesSection({
     bestValue: isRTL ? "أفضل قيمة" : "Best Value",
   } : (content[locale] ?? content.en);
 
-  const displayPackages = packagesData?.items || packages;
+  const displayPackages = packagesData?.items || [];
 
   const sectionRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);

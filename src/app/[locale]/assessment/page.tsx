@@ -56,156 +56,6 @@ type Quiz = {
   threshold?: number;
 };
 
-// The hardcoded generic quiz structure will be used as a fallback if fetching fails.
-const FALLBACK_QUIZZES: Quiz[] = [
-  {
-    id: "fatigue",
-    icon: BatteryWarning,
-    title: { en: "Constant Fatigue", ar: "الخمول والتعب المستمر" },
-    description: { 
-      en: "Feeling tired even after a good night's sleep? Let's check your energy markers.", 
-      ar: "تشعر بالتعب حتى بعد نوم جيد؟ دعنا نفحص مؤشرات الطاقة لديك." 
-    },
-    threshold: 3,
-    questions: [
-      {
-        id: 1,
-        text: { en: "Do you feel tired even after sleeping?", ar: "هل تشعر بالتعب حتى بعد النوم الجيد؟" },
-        options: [
-          { label: { en: "Yes, always", ar: "نعم، دائماً" }, value: "yes", points: 2 },
-          { label: { en: "Sometimes", ar: "أحياناً" }, value: "sometimes", points: 1 },
-          { label: { en: "No, rarely", ar: "لا، نادراً" }, value: "no", points: 0 },
-        ]
-      },
-      {
-        id: 2,
-        text: { en: "Do you experience dizziness when standing up?", ar: "هل تشعر بالدوخة عند الوقوف؟" },
-        options: [
-          { label: { en: "Yes", ar: "نعم" }, value: "yes", points: 2 },
-          { label: { en: "No", ar: "لا" }, value: "no", points: 0 },
-        ]
-      },
-       {
-        id: 3,
-        text: { en: "How is your mood generally?", ar: "كيف هو مزاجك بشكل عام؟" },
-        options: [
-          { label: { en: "Stable", ar: "مستقر" }, value: "stable", points: 0 },
-          { label: { en: "Anxious / Low", ar: "قلق / منخفض" }, value: "low", points: 2 },
-        ]
-      },
-      {
-        id: 4,
-        text: { en: "Do you have pale skin or cold hands?", ar: "هل تعاني من شحوب البشرة أو برودة اليدين؟" },
-        options: [
-          { label: { en: "Yes", ar: "نعم" }, value: "yes", points: 2 },
-          { label: { en: "No", ar: "لا" }, value: "no", points: 0 },
-        ]
-      }
-    ],
-    recommendation: {
-      title: { en: "Comprehensive Energy Panel", ar: "باقة الطاقة والنشاط الشاملة" },
-      description: { 
-        en: "Your symptoms suggest potential deficiencies in Iron, Vitamin D, or B12, which are common causes of fatigue.", 
-        ar: "تشير أعراضك إلى نقص محتمل في الحديد، فيتامين د، أو ب12، وهي مسببات شائعة للخمول." 
-      },
-      price: "25,000 YER",
-      testId: "energy_panel"
-    }
-  },
-  {
-    id: "hair_loss",
-    icon: Sparkles, // Metaphor for beauty/hair
-    title: { en: "Hair Loss & Skin", ar: "تساقط الشعر والبشرة" },
-    description: { 
-      en: "Noticing more hair fall than usual? It might be internal.", 
-      ar: "تلاحظ تساقط شعر أكثر من المعتاد؟ قد يكون السبب داخلياً." 
-    },
-    threshold: 3,
-    questions: [
-      {
-        id: 1,
-        text: { en: "Is the hair loss sudden or gradual?", ar: "هل تساقط الشعر مفاجئ أم تدريجي؟" },
-        options: [
-          { label: { en: "Sudden", ar: "مفاجئ" }, value: "sudden", points: 2 },
-          { label: { en: "Gradual", ar: "تدريجي" }, value: "gradual", points: 1 },
-        ]
-      },
-      {
-        id: 2,
-        text: { en: "Do you have brittle nails?", ar: "هل تعاني من تكسر الأظافر؟" },
-        options: [
-          { label: { en: "Yes", ar: "نعم" }, value: "yes", points: 2 },
-          { label: { en: "No", ar: "لا" }, value: "no", points: 0 },
-        ]
-      },
-      {
-        id: 3,
-        text: { en: "Any sudden weight changes?", ar: "هل هناك تغيرات مفاجئة في الوزن؟" },
-        options: [
-          { label: { en: "Weight Gain", ar: "زيادة وزن" }, value: "gain", points: 2 },
-          { label: { en: "Weight Loss", ar: "نقصان وزن" }, value: "loss", points: 2 },
-          { label: { en: "No change", ar: "لا تغيير" }, value: "none", points: 0 },
-        ]
-      }
-    ],
-    recommendation: {
-      title: { en: "Beauty & Vitality Package", ar: "باقة الجمال والحيوية" },
-      description: { 
-        en: "We recommend checking your Thyroid (TSH), Iron stores (Ferritin), and Zinc levels to identify the root cause.", 
-        ar: "ننصح بفحص الغدة الدرقية (TSH)، مخزون الحديد (Ferritin)، ومستويات الزنك لمعرفة السبب الجذري." 
-      },
-      price: "18,000 YER",
-      testId: "beauty_package"
-    }
-  },
-  {
-    id: "general_checkup",
-    icon: Activity,
-    title: { en: "General Health Check", ar: "الفحص الدوري العام" },
-    description: { 
-      en: "Just want to ensure everything is on track? Start here.", 
-      ar: "تريد فقط التأكد من أن كل شيء على ما يرام؟ ابدأ من هنا." 
-    },
-    threshold: 3,
-    questions: [
-      {
-        id: 1,
-        text: { en: "When was your last blood test?", ar: "متى كان آخر فحص دم أجريته؟" },
-        options: [
-          { label: { en: "Less than 6 months", ar: "أقل من 6 أشهر" }, value: "recent", points: 0 },
-          { label: { en: "Over a year ago", ar: "منذ أكثر من سنة" }, value: "old", points: 2 },
-          { label: { en: "Never", ar: "أبداً" }, value: "never", points: 3 },
-        ]
-      },
-      {
-        id: 2,
-        text: { en: "Do you have a family history of diabetes?", ar: "هل لديك تاريخ عائلي مع السكري؟" },
-        options: [
-          { label: { en: "Yes", ar: "نعم" }, value: "yes", points: 2 },
-          { label: { en: "No", ar: "لا" }, value: "no", points: 0 },
-        ]
-      },
-       {
-        id: 3,
-        text: { en: "How active is your lifestyle?", ar: "ما مدى نشاط نمط حياتك؟" },
-        options: [
-          { label: { en: "Active", ar: "نشيط" }, value: "active", points: 0 },
-          { label: { en: "Sedentary", ar: "خامل" }, value: "sedentary", points: 2 },
-        ]
-      }
-    ],
-    recommendation: {
-      title: { en: "Executive Health Profile", ar: "الفحص التنفيذي الشامل" },
-      description: { 
-        en: "A complete overview including CBC, Lipid Profile, Liver & Kidney function to give you peace of mind.", 
-        ar: "نظرة شاملة تتضمن صورة الدم، الدهون، ووظائف الكبد والكلى لمنحك راحة البال." 
-      },
-      price: "35,000 YER",
-      testId: "executive_profile"
-    }
-  }
-];
-
 /* =========================================
    COMPONENT
    ========================================= */
@@ -266,11 +116,11 @@ export default function AssessmentPage() {
            }));
            setQuizzes(processed);
         } else {
-           setQuizzes(FALLBACK_QUIZZES);
+           setQuizzes([]);
         }
       } catch (err) {
-        console.error("Failed to fetch assessment data, using fallback", err);
-        setQuizzes(FALLBACK_QUIZZES);
+        console.error("Failed to fetch assessment data", err);
+        setQuizzes([]);
       } finally {
         setIsLoading(false);
       }
@@ -404,7 +254,7 @@ export default function AssessmentPage() {
           <div className="relative z-10 w-full max-w-5xl">
             <div className="text-center mb-16">
                <span className="inline-block px-4 py-1.5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold tracking-widest uppercase mb-4 dark:bg-blue-900/30 dark:text-blue-300">
-                  {isRTL ? "التقييم الصحي الذكي" : "Smart Health Assessment"}
+                  {isRTL ? "التقييم الصحي" : "Health Assessment"}
                </span>
                <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-6 leading-tight">
                   {isRTL ? "محتار أي فحص تحتاج؟" : "Not sure what to test?"}

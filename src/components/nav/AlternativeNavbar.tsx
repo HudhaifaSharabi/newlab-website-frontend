@@ -76,7 +76,7 @@ const content: Record<Language, { nav: { badge: string; cta: string; items: NavI
           ]
         },
         { label: "تواصل", href: "/contact" },
-        { label: "التقييم الصحي الذكي", href: "/assessment" }
+        { label: "التقييم الصحي", href: "/assessment" }
       ],
     },
     ui: {

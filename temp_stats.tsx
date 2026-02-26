@@ -22,6 +22,24 @@ type LocalStat = {
 
 // API Partner type is exported from @/types/api so we don't need to define Partner again.
 
+const defaultStats: LocalStat[] = [
+  { value: 15000, suffix: "+", label: "monthlySamples", color: "blue" },
+  { value: 99.9, suffix: "%", label: "accuracy", color: "red" },
+  { value: 450, suffix: "+", label: "activeDoctors", color: "blue" },
+  { value: 12, suffix: "+", label: "yearsExperience", color: "red" },
+];
+
+const defaultPartners: Partner[] = [
+  { name_en: "Hospital A", name_ar: "مستشفى أ", logo: "" },
+  { name_en: "Insurance B", name_ar: "تأمين ب", logo: "" },
+  { name_en: "Medical Center C", name_ar: "مركز طبي ج", logo: "" },
+  { name_en: "Clinic D", name_ar: "عيادة د", logo: "" },
+  { name_en: "Health Group E", name_ar: "مجموعة صحية هـ", logo: "" },
+  { name_en: "Diagnostics F", name_ar: "تشخيصات و", logo: "" },
+  { name_en: "Lab Partners G", name_ar: "شركاء المختبر ز", logo: "" },
+  { name_en: "Healthcare H", name_ar: "رعاية صحية ح", logo: "" },
+];
+
 export function StatsAndPartners({
   statsData,
   partnersData,
@@ -38,9 +56,9 @@ export function StatsAndPartners({
     suffix: item.suffix || (item as any).value?.replace(/[0-9.]/g, '') || "",
     label: isRTL ? item.label_ar : item.label_en,
     color: (item.color as "blue" | "red") || (index % 2 === 0 ? "blue" : "red")
-  })) || [];
+  })) || defaultStats;
 
-  const displayPartners = partnersData || [];
+  const displayPartners = partnersData || defaultPartners;
   const containerRef = useRef<HTMLDivElement>(null);
   const marqueeRef = useRef<HTMLDivElement>(null);
   const marqueeInnerRef = useRef<HTMLDivElement>(null);

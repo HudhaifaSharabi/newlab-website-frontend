@@ -54,35 +54,7 @@ export function LocationsAndFooter() {
   const [selectedBranchId, setSelectedBranchId] = useState<number | null>(null);
   const [hoveredBranchId, setHoveredBranchId] = useState<number | null>(null);
 
-  const branches: Branch[] = [
-    {
-      id: 1,
-      name: t("branches.main.name"),
-      address: t("branches.main.address"),
-      phone: "+967 1 234 567",
-      lat: 15.342095832175126,
-      lng: 44.17050633863272,
-      type: "main",
-    },
-    {
-      id: 2,
-      name: t("branches.haddah.name"),
-      address: t("branches.haddah.address"),
-      phone: "+967 1 234 568",
-      lat: 15.352095,
-      lng: 44.18050633,
-      type: "branch",
-    },
-    {
-      id: 3,
-      name: t("branches.algeria.name"),
-      address: t("branches.algeria.address"),
-      phone: "+967 1 234 569",
-      lat: 15.332095,
-      lng: 44.16050633,
-      type: "branch",
-    },
-  ];
+  const branches: Branch[] = [];
 
   const { isLoaded } = useJsApiLoader({
     id: MAPS_SCRIPT_ID,
@@ -90,9 +62,12 @@ export function LocationsAndFooter() {
     libraries: ["geometry", "drawing", "places"],
   });
 
-  const mapCenter = {
+  const mapCenter = branches.length > 0 ? {
     lat: branches[0].lat,
     lng: branches[0].lng,
+  } : {
+    lat: 15.3694,
+    lng: 44.1910, // Sana'a coordinates
   };
 
   const mapOptions = {

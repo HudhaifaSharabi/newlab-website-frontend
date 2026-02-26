@@ -58,15 +58,11 @@ export default async function ContactPage({ params: { locale } }: { params: { lo
 
   // Fallback data if API fails to prevent white screen
   const defaultContactData = {
-    address: "Sixty St., Sana'a, Yemen",
-    addressAr: "شارع الستين، صنعاء، اليمن",
-    phones: ["+967 1 234 567", "+967 777 000 000"],
-    email: "info@newlab.com",
-    workingHours: [
-      { days: "Sat - Thu", daysAr: "السبت - الخميس", hours: "8:00 AM - 10:00 PM" },
-      { days: "Friday", daysAr: "الجمعة", hours: "4:00 PM - 9:00 PM" },
-      { days: "Emergency", daysAr: "الطوارئ", hours: "24/7", isEmergency: true }
-    ]
+    address: "",
+    addressAr: "",
+    phones: [],
+    email: "",
+    workingHours: []
   };
 
   const contactJsonLd = {
