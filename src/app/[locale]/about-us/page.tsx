@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import { getTranslations } from "next-intl/server";
-import { Users, Target, Heart, ShieldCheck, Microscope } from "lucide-react";
+import { Microscope } from "lucide-react";
+import DynamicIcon from "@/components/ui/DynamicIcon";
 import AlternativeNavbar from "@/components/nav/AlternativeNavbar";
 import { NewLabFooter } from "@/components/footer/NewLabFooter";
 import OurStory from "@/components/OurStory";
@@ -83,13 +84,7 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
     );
   }
 
-  // Map values icons
-  const iconMap: Record<string, React.ReactNode> = {
-    accuracy: <Target className="h-6 w-6 text-[#1a658d]" />,
-    integrity: <ShieldCheck className="h-6 w-6 text-[#b9292f]" />,
-    care: <Heart className="h-6 w-6 text-green-600" />
-  };
-
+  // Using standard colors and icons dynamic from API
   const colorMap: Record<string, string> = {
     accuracy: "bg-[#1a658d]/10",
     integrity: "bg-[#b9292f]/10",
@@ -166,7 +161,7 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
                   className="flex flex-col items-center text-center p-8 rounded-2xl bg-slate-50 transition-all hover:shadow-lg dark:bg-slate-900"
                 >
                   <div className={`mb-6 flex h-16 w-16 items-center justify-center rounded-2xl ${colorMap[value.id] || "bg-[#1a658d]/10"}`}>
-                    {iconMap[value.id] || <Target className="h-6 w-6 text-[#1a658d]" />}
+                    <DynamicIcon name={(value as any).icon || value.id} className={`h-6 w-6 ${colorMap[value.id] ? '' : 'text-[#1a658d]'}`} />
                   </div>
                   <h3 className="mb-3 text-xl font-bold text-slate-900 dark:text-white flex justify-center w-full">
                     {(isRTL ? value.titleAr : value.title) || (

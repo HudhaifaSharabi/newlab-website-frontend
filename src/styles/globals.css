@@ -11,6 +11,8 @@
 
 :root {
   color-scheme: dark;
+  --font-heading: 'Cairo', sans-serif;
+  --font-body: 'Tajawal', sans-serif;
   --bg: #020617;
   --bg-elevated: rgba(255, 255, 255, 0.04);
   --text: #e2e8f0;

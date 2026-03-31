@@ -5,7 +5,8 @@ import { useLocale } from "next-intl";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { Activity, Sparkles, Heart, Check } from "lucide-react";
+import { Sparkles, Check } from "lucide-react";
+import DynamicIcon from "@/components/ui/DynamicIcon";
 import { PackagesData } from "@/types/api";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -18,7 +19,7 @@ type Package = {
   nameAr: string;
   price: string;
   priceAr: string;
-  icon: "activity" | "sparkles" | "heart";
+  icon: string;
   featured: boolean;
   features: string[];
   featuresAr: string[];
@@ -117,19 +118,6 @@ export function PackagesSection({
     }
   };
 
-  const getIcon = (iconType: string) => {
-    switch (iconType) {
-      case "activity":
-        return Activity;
-      case "sparkles":
-        return Sparkles;
-      case "heart":
-        return Heart;
-      default:
-        return Activity;
-    }
-  };
-
   return (
     <section
       ref={sectionRef}
@@ -170,7 +158,6 @@ export function PackagesSection({
         {/* Packages Grid */}
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
           {displayPackages.length > 0 ? displayPackages.map((pkg, index) => {
-            const Icon = getIcon(pkg.icon);
             const packageName = isRTL ? (pkg as any).name_ar || (pkg as any).nameAr : (pkg as any).name_en || (pkg as any).name;
             const packagePrice = isRTL ? (pkg as any).price_ar || (pkg as any).priceAr : (pkg as any).price_en || (pkg as any).price;
             const packageFeatures = isRTL ? (pkg as any).features_ar || (pkg as any).featuresAr : (pkg as any).features_en || (pkg as any).features;
@@ -217,7 +204,7 @@ export function PackagesSection({
                             ? "border-white/30 bg-white/10"
                             : "border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800 group-hover:border-white/30 group-hover:bg-white/10"
                         }`}>
-                          <Icon className={`h-10 w-10 transition-colors duration-300 ${((pkg as any).featured || (pkg as any).isFeatured) ? "text-white" : "text-[#1a658d] dark:text-[#1a658d] group-hover:text-white"}`} strokeWidth={1.5} />
+                          <DynamicIcon name={pkg.icon || "activity"} className={`h-10 w-10 transition-colors duration-300 ${((pkg as any).featured || (pkg as any).isFeatured) ? "text-white" : "text-[#1a658d] dark:text-[#1a658d] group-hover:text-white"}`} strokeWidth={1.5} />
                         </div>
                       </div>
                     </div>

@@ -6,22 +6,8 @@ import {getMessages, getTranslations, setRequestLocale} from 'next-intl/server';
 import {ThemeProvider} from 'next-themes';
 import clsx from 'clsx';
 import type {Metadata} from 'next';
-import {Cairo, Tajawal} from 'next/font/google';
 import FloatingContactWidget from '@/components/FloatingContactWidget';
 import GlobalLoader from '@/components/GlobalLoader';
-
-const cairo = Cairo({
-  subsets: ['latin', 'arabic'],
-  variable: '--font-heading',
-  display: 'swap',
-});
-
-const tajawal = Tajawal({
-  subsets: ['latin', 'arabic'],
-  weight: ['200', '300', '400', '500', '700', '800', '900'],
-  variable: '--font-body',
-  display: 'swap',
-});
 
 const resolveLocale = (locale: string): (typeof locales)[number] =>
   (locales.includes(locale as (typeof locales)[number]) ? locale : defaultLocale) as (typeof locales)[number];
@@ -55,13 +41,16 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'} suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&family=Tajawal:wght@200;300;400;500;700;800;900&display=swap" rel="stylesheet" />
+      </head>
       <body
         className={clsx(
           'min-h-screen antialiased transition-colors',
           'bg-brand-mist text-slate-900',
-          'dark:bg-brand-slate dark:text-white',
-          cairo.variable,
-          tajawal.variable
+          'dark:bg-brand-slate dark:text-white'
         )}
       >
         <NextIntlClientProvider locale={locale} messages={messages}>

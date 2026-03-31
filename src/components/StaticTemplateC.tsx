@@ -8,6 +8,7 @@ import { useLocale } from "next-intl";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import clsx from "clsx";
 import { FlaskConical, Microscope, ShieldCheck } from "lucide-react";
+import DynamicIcon from "@/components/ui/DynamicIcon";
 import { WorkflowData } from "@/types/api";
 
 type Locale = "en" | "ar";
@@ -21,7 +22,7 @@ type GalleryImage = {
 type HighlightItem = {
   title: string;
   desc: string;
-  icon: "flask" | "shield" | "scope";
+  icon: string;
 };
 
 type RichTextSection = {
@@ -102,12 +103,6 @@ const contentByLocale: Record<Locale, StaticTemplateContent> = {
     cover: undefined,
     sections: [],
   },
-};
-
-const iconMap = {
-  flask: FlaskConical,
-  shield: ShieldCheck,
-  scope: Microscope,
 };
 
 const getSectionId = (section: StaticPageSection, index: number) => {
@@ -451,7 +446,6 @@ function ProgramsGrid({
   return (
     <div className="mt-6 space-y-4">
       {items.map((item, idx) => {
-        const Icon = iconMap[item.icon] ?? FlaskConical;
         return (
           <div
             key={item.title}
@@ -467,7 +461,7 @@ function ProgramsGrid({
 
             <div className="flex items-start gap-4">
               <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-brand-primary/10 text-brand-primary ring-1 ring-brand-primary/20 dark:bg-white/5 dark:text-white dark:ring-white/10">
-                <Icon className="h-6 w-6" />
+                <DynamicIcon name={item.icon || "flask-conical"} className="h-6 w-6" />
               </div>
 
               <div className="flex-1">
