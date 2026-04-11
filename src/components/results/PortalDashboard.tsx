@@ -6,7 +6,7 @@ import { useTheme } from "next-themes";
 import { 
   Search, Calendar, MapPin, Download, FileText, User, 
   LogOut, ChevronDown, CheckSquare, Square, 
-  Eye, Activity, Lock,
+  Eye, EyeOff, Activity, Lock,
   Moon, Sun, X, ChevronRight, ChevronLeft,
   AlertCircle, RefreshCw
 } from "lucide-react";
@@ -100,6 +100,14 @@ export function PortalDashboard({ onLogout, userName, userPhone }: PortalDashboa
   const [pwLoading, setPwLoading] = useState(false);
   const [pwError, setPwError] = useState("");
   const [pwSuccess, setPwSuccess] = useState(false);
+
+  // Visibility and specific error states
+  const [showPwCurrent, setShowPwCurrent] = useState(false);
+  const [showPwNew, setShowPwNew] = useState(false);
+  const [showPwConfirm, setShowPwConfirm] = useState(false);
+  const [pwCurrentError, setPwCurrentError] = useState(false);
+  const [pwNewError, setPwNewError] = useState(false);
+  const [pwConfirmError, setPwConfirmError] = useState(false);
 
   // ─── Theme ────────────────────────────────────────────────────────────────
   const { resolvedTheme, setTheme } = useTheme();
@@ -310,23 +318,65 @@ export function PortalDashboard({ onLogout, userName, userPhone }: PortalDashboa
   };
 
   // ─── Change Password ──────────────────────────────────────────────────────
-  const handleChangePasswordSubmit = (e: React.FormEvent) => {
+  const handleChangePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setPwError("");
     setPwSuccess(false);
-    if (!pwCurrent || !pwNew || !pwConfirm) { setPwError("يرجى تعبئة جميع الحقول."); return; }
-    if (pwNew !== pwConfirm) { setPwError("كلمتا المرور غير متطابقتين."); return; }
-    if (pwNew.length < 6) { setPwError("يجب أن تتكون كلمة المرور من 6 أحرف على الأقل."); return; }
+    setPwCurrentError(false);
+    setPwNewError(false);
+    setPwConfirmError(false);
+
+    if (!pwCurrent) { setPwCurrentError(true); setPwError("يرجى تعبئة جميع الحقول."); return; }
+    if (!pwNew) { setPwNewError(true); setPwError("يرجى تعبئة جميع الحقول."); return; }
+    if (!pwConfirm) { setPwConfirmError(true); setPwError("يرجى تعبئة جميع الحقول."); return; }
+
+    if (pwNew !== pwConfirm) {
+      setPwNewError(true);
+      setPwConfirmError(true);
+      setPwError("كلمتا المرور غير متطابقتين.");
+      return;
+    }
+    if (pwNew.length < 6) {
+      setPwNewError(true);
+      setPwError("يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.");
+      return;
+    }
+
     setPwLoading(true);
-    setTimeout(() => {
+    try {
+      const res = await fetch(`/api/portal-change-password`, {
+  method: "POST",
+  headers: {
+    // إخبار السيرفر أننا نرسل بيانات بصيغة JSON
+    "Content-Type": "application/json", 
+  },
+  // إرسال كلمات المرور في جسم الطلب (مخفية وآمنة)
+  body: JSON.stringify({
+    old_password: pwCurrent,
+    new_password: pwNew,
+  }),
+});
+
+      const data = await res.json();
+
+      if (res.ok && data.message?.status !== "error") {
+        setPwSuccess(true);
+        showToast("تم تغيير كلمة المرور بنجاح!", "success");
+        setTimeout(() => {
+          setPasswordModalOpen(false);
+          setPwSuccess(false);
+          setPwCurrent("");
+          setPwNew("");
+          setPwConfirm("");
+        }, 1500);
+      } else {
+        setPwError(data.message?.message || data.message || "فشل تغيير كلمة المرور. يرجى التأكد من كلمة المرور الحالية.");
+      }
+    } catch (err) {
+      setPwError("تعذر الاتصال بالخادم. يرجى المحاولة لاحقاً.");
+    } finally {
       setPwLoading(false);
-      setPwSuccess(true);
-      setTimeout(() => {
-        setPasswordModalOpen(false);
-        setPwSuccess(false);
-        setPwCurrent(""); setPwNew(""); setPwConfirm("");
-      }, 1500);
-    }, 1200);
+    }
   };
 
   return (
@@ -751,15 +801,59 @@ export function PortalDashboard({ onLogout, userName, userPhone }: PortalDashboa
             <form onSubmit={handleChangePasswordSubmit} className="p-6 space-y-4">
               {pwError && <div className="bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 p-3 rounded-xl text-sm font-semibold text-center border border-red-200">{pwError}</div>}
               {pwSuccess && <div className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 p-3 rounded-xl text-sm font-semibold text-center border border-emerald-200">تم تغيير كلمة المرور بنجاح!</div>}
+              
               {[
-                { label: "كلمة المرور الحالية", val: pwCurrent, set: setPwCurrent, ph: "أدخل كلمة المرور الحالية" },
-                { label: "كلمة المرور الجديدة", val: pwNew, set: setPwNew, ph: "أدخل كلمة المرور الجديدة" },
-                { label: "تأكيد كلمة المرور الجديدة", val: pwConfirm, set: setPwConfirm, ph: "أعد إدخال كلمة المرور" },
-              ].map(({ label, val, set, ph }) => (
+                { 
+                  label: "كلمة المرور الحالية", 
+                  val: pwCurrent, 
+                  set: (v: string) => { setPwCurrent(v); setPwCurrentError(false); }, 
+                  ph: "أدخل كلمة المرور الحالية",
+                  show: showPwCurrent,
+                  toggle: () => setShowPwCurrent(!showPwCurrent),
+                  hasError: pwCurrentError
+                },
+                { 
+                  label: "كلمة المرور الجديدة", 
+                  val: pwNew, 
+                  set: (v: string) => { setPwNew(v); setPwNewError(false); }, 
+                  ph: "أدخل كلمة المرور الجديدة",
+                  show: showPwNew,
+                  toggle: () => setShowPwNew(!showPwNew),
+                  hasError: pwNewError
+                },
+                { 
+                  label: "تأكيد كلمة المرور الجديدة", 
+                  val: pwConfirm, 
+                  set: (v: string) => { setPwConfirm(v); setPwConfirmError(false); }, 
+                  ph: "أعد إدخال كلمة المرور",
+                  show: showPwConfirm,
+                  toggle: () => setShowPwConfirm(!showPwConfirm),
+                  hasError: pwConfirmError
+                },
+              ].map(({ label, val, set, ph, show, toggle, hasError }) => (
                 <div key={label} className="space-y-2">
                   <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">{label}</label>
-                  <input type="password" value={val} onChange={(e) => set(e.target.value)} placeholder={ph}
-                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-[#1a658d] focus:ring-1 focus:ring-[#1a658d] dark:text-white" />
+                  <div className="relative">
+                    <input 
+                      type={show ? "text" : "password"} 
+                      value={val} 
+                      onChange={(e) => set(e.target.value)} 
+                      placeholder={ph}
+                      className={clsx(
+                        "w-full bg-slate-50 dark:bg-slate-900 border rounded-xl pl-12 pr-4 py-3 text-sm font-medium focus:outline-none focus:ring-1 dark:text-white transition-all",
+                        hasError 
+                          ? "border-red-500 focus:border-red-500 focus:ring-red-500" 
+                          : "border-slate-200 dark:border-slate-700 focus:border-[#1a658d] focus:ring-[#1a658d]"
+                      )} 
+                    />
+                    <button
+                      type="button"
+                      onClick={toggle}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors"
+                    >
+                      {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                 </div>
               ))}
               <button type="submit" disabled={pwLoading || pwSuccess}
