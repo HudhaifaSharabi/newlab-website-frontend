@@ -41,11 +41,6 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'} suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&family=Tajawal:wght@200;300;400;500;700;800;900&display=swap" rel="stylesheet" />
-      </head>
       <body
         className={clsx(
           'min-h-screen antialiased transition-colors',
@@ -56,7 +51,7 @@ export default async function LocaleLayout({
         <NextIntlClientProvider locale={locale} messages={messages}>
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
             <GlobalLoader />
-            <main className="min-h-screen font-sans">{children}</main>
+            <main className="min-h-screen font-sans overflow-x-hidden">{children}</main>
             <FloatingContactWidget />
             <JsonLd data={jsonLd} />
           </ThemeProvider>

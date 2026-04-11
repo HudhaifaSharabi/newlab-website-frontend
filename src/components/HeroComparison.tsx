@@ -12,7 +12,7 @@ import { useGSAP } from "@gsap/react";
 import { Upload, BookOpen, MapPin, MessageCircle } from "lucide-react";
 import AlternativeNavbar from "./nav/AlternativeNavbar";
 import { HeroData, AboutData } from "@/types/api";
-
+import r2Loader from '@/utils/r2Loader';
 gsap.registerPlugin(ScrollTrigger);
 
 /* =========================
