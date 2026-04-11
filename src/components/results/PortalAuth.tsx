@@ -292,7 +292,6 @@ export function PortalAuth({ onLogin }: PortalAuthProps) {
           <ShieldCheck className="w-16 h-16 text-[#10b981] mb-6 inline-block" />
           <h1 className="text-4xl lg:text-5xl font-extrabold text-white mb-6 leading-tight">
             نتائج الفحوصات <br/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-l from-emerald-300 to-teal-100">بمستوى مؤسسي</span>
           </h1>
           <p className="text-lg text-slate-200/90 leading-relaxed">
             احصل على تقاريرك المخبرية فوراً عبر بوابتنا الآمنة     .
