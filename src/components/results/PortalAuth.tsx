@@ -298,7 +298,9 @@ export function PortalAuth({ onLogin }: PortalAuthProps) {
           </p>
         </div>
 
-
+          <div className="relative z-10 max-w-md">
+          
+        </div>
       </div>
     </div>
   );
