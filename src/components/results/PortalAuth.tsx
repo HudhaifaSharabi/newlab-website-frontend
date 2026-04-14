@@ -159,7 +159,7 @@ export function PortalAuth({ onLogin }: PortalAuthProps) {
 
           <div className="mb-10 text-center lg:text-right">
             <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-3">بوابة النتائج الآمنة</h2>
-            <p className="text-slate-500 dark:text-slate-400">يرجى تسجيل الدخول لعرض تقارير المختبر الخاصة بك.</p>
+            <p className="text-slate-500 dark:text-slate-400">يرجى تسجيل الدخول لعرض نتائ  الفحوصات الخاصة بك.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6" noValidate>

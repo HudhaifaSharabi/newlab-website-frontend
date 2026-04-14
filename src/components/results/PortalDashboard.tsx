@@ -344,19 +344,21 @@ export function PortalDashboard({ onLogout, userName, userPhone }: PortalDashboa
 
     setPwLoading(true);
     try {
-      const res = await fetch(`/api/portal-change-password`, {
-  method: "POST",
-  headers: {
-    // إخبار السيرفر أننا نرسل بيانات بصيغة JSON
-    "Content-Type": "application/json", 
-  },
-  // إرسال كلمات المرور في جسم الطلب (مخفية وآمنة)
-  body: JSON.stringify({
-    old_password: pwCurrent,
-    new_password: pwNew,
-  }),
-});
+       const params = new URLSearchParams({
 
+        old_password: pwCurrent,
+
+        new_password: pwNew,
+
+      });
+
+
+
+      const res = await fetch(`/api/portal-change-password?${params.toString()}`, {
+
+        method: "GET",
+
+      });
       const data = await res.json();
 
       if (res.ok && data.message?.status !== "error") {

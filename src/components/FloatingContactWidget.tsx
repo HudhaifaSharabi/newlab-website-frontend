@@ -37,7 +37,7 @@ export default function FloatingContactWidget() {
   useEffect(() => {
     const fetchWidgetData = async () => {
       try {
-        const res = await fetch("/api/method/newlab_site.api.get_chat_widget");
+        const res = await fetch("/api/chat-widget");
         const json = await res.json();
         
         // Handle Frappe's stringified JSON or nested messages gracefully
@@ -112,6 +112,11 @@ export default function FloatingContactWidget() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen]);
 
+  // Ensure we don't render an empty or broken widget at all if no data is available
+  if (!isLoading && (!data || !data.branches?.length)) {
+    return null;
+  }
+
   return (
     <div className={`fixed bottom-6 z-50 ${isRTL ? "left-6" : "right-6"}`}>
       
@@ -169,25 +174,14 @@ export default function FloatingContactWidget() {
                 <ChevronRight className={`h-4 w-4 text-slate-400 ${isRTL ? "rotate-180" : ""}`} />
               </a>
             ))
-          ) : (
-            // Fallback
-            <a href="https://api.whatsapp.com/send/?phone=967777000000" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between rounded-lg p-3 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800">
-              <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#25D366]/10 text-[#25D366]">
-                  <MessageCircle className="h-4 w-4" />
-                </div>
-                <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                  {isRTL ? "المركز الرئيسي" : "Main Center"}
-                </span>
-              </div>
-              <ChevronRight className={`h-4 w-4 text-slate-400 ${isRTL ? "rotate-180" : ""}`} />
-            </a>
-          )}
+          ) : null}
         </div>
 
-        <div className="my-3 border-t border-slate-200 dark:border-slate-700" />
-
         {/* Action Button */}
+        {(isLoading || data?.action_button) && (
+          <div className="my-3 border-t border-slate-200 dark:border-slate-700" />
+        )}
+        
         {isLoading ? (
           <div className="h-11 w-full animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700"></div>
         ) : data?.action_button ? (
@@ -199,16 +193,7 @@ export default function FloatingContactWidget() {
             <Home className="h-4 w-4" />
             {isRTL ? data.action_button.text_ar : data.action_button.text_en}
           </Link>
-        ) : (
-          <Link 
-              href={`/${locale}/book`} 
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#b9292f] py-3 text-sm font-bold text-white shadow-lg transition-transform hover:scale-[1.02] hover:bg-[#a02025]"
-              onClick={() => setIsOpen(false)}
-          >
-            <Home className="h-4 w-4" />
-            {isRTL ? "حجز زيارة منزلية" : "Book Home Visit"}
-          </Link>
-        )}
+        ) : null}
       </div>
 
       {/* Main Toggle Button */}
