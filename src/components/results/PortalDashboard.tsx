@@ -658,17 +658,18 @@ export function PortalDashboard({ onLogout, userName, userPhone }: PortalDashboa
 
                   {/* Visit ID + Date */}
                   <div className="mb-5">
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1" dir="ltr">#{report.name}</h3>
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-1" dir="rtl"> 
+                       
+                      <User className="w-5 h-5 text-slate-400" /> {report.patient_name} 
+                    </h3>
                     <p className="text-sm font-medium text-slate-500 flex items-center gap-2">
-                      <Calendar className="w-4 h-4" /> {formatDate(report.result_date)}
+                      <Calendar className="w-5 h-5 text-slate-400" /> {formatDate(report.result_date)}
                     </p>
                   </div>
 
                   {/* Patient + Branch */}
                   <div className="space-y-3 mb-5 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl">
-                    <p className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-                      <User className="w-4 h-4 text-slate-400" /> {report.patient_name}
-                    </p>
+                   
                     <p className="text-sm font-medium text-slate-600 dark:text-slate-400 flex items-center gap-2">
                       <MapPin className="w-4 h-4 text-slate-400" /> {report.branch || "—"}
                     </p>
