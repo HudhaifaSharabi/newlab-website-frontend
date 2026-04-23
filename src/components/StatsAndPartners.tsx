@@ -34,7 +34,7 @@ export function StatsAndPartners({
   const isRTL = locale === "ar";
 
   const displayStats: LocalStat[] = statsData?.counters?.map((item, index) => {
-    const rawValue = item.value;
+    const rawValue: any = item.value;
     const numValue = typeof rawValue === 'number' ? rawValue : parseFloat(String(rawValue || "0").replace(/[^0-9.]/g, '')) || 0;
     return {
       value: numValue,
