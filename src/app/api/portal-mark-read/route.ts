@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ status: "error", message: "result_name is required" }, { status: 400 });
   }
 
-  const apiUrl = `https://newlabadmin.simsaarsoft.com/api/method/newlab_site.api.mark_as_read?result_name=${encodeURIComponent(resultName)}`;
+  const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/method/newlab_site.api.mark_as_read?result_name=${encodeURIComponent(resultName)}`;
 
   try {
     const backendRes = await fetch(apiUrl, {

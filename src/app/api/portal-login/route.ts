@@ -5,7 +5,7 @@ export async function GET(request: NextRequest) {
   const phone = searchParams.get("phone_number") ?? "";
   const password = searchParams.get("password") ?? "";
 
-  const apiUrl = `https://newlabadmin.simsaarsoft.com/api/method/newlab_site.api.portal_login?password=${encodeURIComponent(password)}&phone_number=${encodeURIComponent(phone)}`;
+  const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/method/newlab_site.api.portal_login?password=${encodeURIComponent(password)}&phone_number=${encodeURIComponent(phone)}`;
 
   try {
     const backendRes = await fetch(apiUrl, {

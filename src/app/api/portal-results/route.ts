@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
   if (searchParams.get("limit_start"))     params.set("limit_start", searchParams.get("limit_start")!);
   if (searchParams.get("limit_page_length")) params.set("limit_page_length", searchParams.get("limit_page_length")!);
 
-  const apiUrl = `https://newlabadmin.simsaarsoft.com/api/method/newlab_site.api.get_results?${params.toString()}`;
+  const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/method/newlab_site.api.get_results?${params.toString()}`;
 
   try {
     const backendRes = await fetch(apiUrl, {

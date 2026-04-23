@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
   }
 
   // مسار API الخاص بـ Frappe
-  const apiUrl = `https://newlabadmin.simsaarsoft.com/api/method/newlab_site.api.download_single_pdf?result_name=${encodeURIComponent(resultName)}`;
+  const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/method/newlab_site.api.download_single_pdf?result_name=${encodeURIComponent(resultName)}`;
 
   try {
     // الخطوة الأولى: جلب الرابط المؤقت من Frappe

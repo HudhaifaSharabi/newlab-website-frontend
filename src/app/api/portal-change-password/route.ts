@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
   const oldPassword = searchParams.get("old_password") ?? "";
   const newPassword = searchParams.get("new_password") ?? "";
 
-  const apiUrl = `https://newlabadmin.simsaarsoft.com/api/method/newlab_site.api.change_user_password?old_password=${encodeURIComponent(oldPassword)}&new_password=${encodeURIComponent(newPassword)}`;
+  const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/method/newlab_site.api.change_user_password?old_password=${encodeURIComponent(oldPassword)}&new_password=${encodeURIComponent(newPassword)}`;
 
   try {
     const backendRes = await fetch(apiUrl, {

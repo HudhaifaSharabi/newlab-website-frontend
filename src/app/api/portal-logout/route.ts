@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
   // ─── 1. Tell Frappe to invalidate the session ───────────────────────────
   try {
     await fetch(
-      "https://newlabadmin.simsaarsoft.com/api/method/newlab_site.api.portal_logout",
+      `${process.env.NEXT_PUBLIC_API_URL}/api/method/newlab_site.api.portal_logout`,
       {
         method: "GET",
         headers: {

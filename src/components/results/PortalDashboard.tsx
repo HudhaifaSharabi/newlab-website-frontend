@@ -8,7 +8,7 @@ import {
   LogOut, ChevronDown, CheckSquare, Square, 
   Eye, EyeOff, Activity, Lock,
   Moon, Sun, X, ChevronRight, ChevronLeft,
-  AlertCircle, RefreshCw
+  AlertCircle, RefreshCw, Clock
 } from "lucide-react";
 import clsx from "clsx";
 
@@ -24,6 +24,7 @@ interface LabReport {
   patient_name: string;
   branch: string;
   result_date: string;  // ISO date "2026-10-24"
+  result_time?: string; // Time string "14:30:00"
   is_read: boolean;
   result_pdf: string;   // URL or file path to PDF
 }
@@ -39,6 +40,25 @@ function formatDate(iso: string): string {
     });
   } catch {
     return iso;
+  }
+}
+
+// Format time string to 12-hour Arabic display
+function formatTime(timeStr: string): string {
+  if (!timeStr) return "";
+  try {
+    const [hours, minutes] = timeStr.split(':');
+    if (!hours || !minutes) return timeStr;
+    const d = new Date();
+    d.setHours(parseInt(hours, 10));
+    d.setMinutes(parseInt(minutes, 10));
+    return d.toLocaleTimeString("ar-SA", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true
+    });
+  } catch {
+    return timeStr;
   }
 }
 
@@ -662,9 +682,16 @@ export function PortalDashboard({ onLogout, userName, userPhone }: PortalDashboa
                        
                       <User className="w-5 h-5 text-slate-400" /> {report.patient_name} 
                     </h3>
-                    <p className="text-sm font-medium text-slate-500 flex items-center gap-2">
-                      <Calendar className="w-5 h-5 text-slate-400" /> {formatDate(report.result_date)}
-                    </p>
+                    <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-slate-500">
+                      <p className="flex items-center gap-2">
+                        <Calendar className="w-5 h-5 text-slate-400" /> {formatDate(report.result_date)}
+                      </p>
+                      {report.result_time && (
+                        <p className="flex items-center gap-2">
+                          <Clock className="w-4 h-4 text-slate-400" /> <span dir="ltr">{formatTime(report.result_time)}</span>
+                        </p>
+                      )}
+                    </div>
                   </div>
 
                   {/* Patient + Branch */}

@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const userRes = await fetch(
-      "https://newlabadmin.simsaarsoft.com/api/method/frappe.auth.get_logged_user",
+      `${process.env.NEXT_PUBLIC_API_URL}/api/method/frappe.auth.get_logged_user`,
       {
         method: "GET",
         headers: {

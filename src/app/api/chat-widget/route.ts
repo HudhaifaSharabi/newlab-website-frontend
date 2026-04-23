@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "https://newlabadmin.simsaarsoft.com";
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
     const res = await fetch(`${baseUrl}/api/method/newlab_site.api.get_chat_widget`, {
       headers: {
         'Accept': 'application/json'

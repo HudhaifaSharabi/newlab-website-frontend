@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
  * These are public-facing messages for the dashboard announcement bar.
  */
 export async function GET(request: NextRequest) {
-  const apiUrl = "https://newlabadmin.simsaarsoft.com/api/method/newlab_site.api.get_ticker_messages";
+  const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/method/newlab_site.api.get_ticker_messages`;
 
   try {
     const backendRes = await fetch(apiUrl, {

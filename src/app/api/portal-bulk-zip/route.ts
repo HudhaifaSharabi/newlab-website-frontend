@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const apiUrl = "https://newlabadmin.simsaarsoft.com/api/method/newlab_site.api.download_bulk_zip";
+  const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/method/newlab_site.api.download_bulk_zip`;
 
   try {
     const backendRes = await fetch(apiUrl, {

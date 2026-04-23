@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
  * Forwards the session cookie (sid) for authentication.
  */
 export async function GET(request: NextRequest) {
-  const apiUrl = "https://newlabadmin.simsaarsoft.com/api/method/newlab_site.api.get_active_branches";
+  const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/method/newlab_site.api.get_active_branches`;
 
   try {
     const backendRes = await fetch(apiUrl, {
