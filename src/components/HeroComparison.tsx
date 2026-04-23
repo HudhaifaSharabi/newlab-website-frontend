@@ -470,22 +470,20 @@ export default function HeroWithAbout({
 
             <h1 className="mt-6 text-5xl font-black leading-tight text-slate-900 dark:text-white sm:text-6xl lg:text-7xl">
               {(isRTL ? heroContent.title_ar : heroContent.title_en) ? (
-                <>
-                  <span className="anim-headline inline-block">
-                    {(isRTL ? heroContent.title_ar : heroContent.title_en)?.split(" ").slice(0, -1).join(" ")}{" "}
-                  </span>
-                  <span className="anim-headline inline-block bg-gradient-to-r from-[#1a658d] to-[#b9292f] bg-clip-text text-transparent">
+                <div className="anim-headline leading-tight">
+                  {(isRTL ? heroContent.title_ar : heroContent.title_en)?.split(" ").slice(0, -1).join(" ")}{" "}
+                  <span className="bg-gradient-to-r from-[#1a658d] to-[#b9292f] bg-clip-text text-transparent">
                     {(isRTL ? heroContent.title_ar : heroContent.title_en)?.split(" ").slice(-1)}
                   </span>
-                  <br />
-                  <span className="anim-headline relative inline-block bg-gradient-to-r from-[#1a658d] via-[#b9292f] to-[#1a658d] bg-clip-text text-transparent">
+                  {" "}
+                  <span className="relative inline-block bg-gradient-to-r from-[#1a658d] via-[#b9292f] to-[#1a658d] bg-clip-text text-transparent">
                     {isRTL ? heroContent.accent_ar : heroContent.accent_en}
                     <span
                       ref={underlineRef}
                       className="absolute -bottom-1 left-0 h-[3px] w-full bg-gradient-to-r from-[#1a658d] to-[#b9292f]"
                     />
                   </span>
-                </>
+                </div>
               ) : (
                 <div className="flex flex-col gap-4 mt-2">
                   <div className="h-16 w-3/4 rounded-lg bg-slate-200 dark:bg-slate-800 animate-pulse" />

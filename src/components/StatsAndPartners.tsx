@@ -33,12 +33,16 @@ export function StatsAndPartners({
   const locale = useLocale();
   const isRTL = locale === "ar";
 
-  const displayStats: LocalStat[] = statsData?.counters?.map((item, index) => ({
-    value: item.value || parseFloat((item as any).value?.replace(/[^0-9.]/g, '') || "0") || 0,
-    suffix: item.suffix || (item as any).value?.replace(/[0-9.]/g, '') || "",
-    label: isRTL ? item.label_ar : item.label_en,
-    color: (item.color as "blue" | "red") || (index % 2 === 0 ? "blue" : "red")
-  })) || [];
+  const displayStats: LocalStat[] = statsData?.counters?.map((item, index) => {
+    const rawValue = item.value;
+    const numValue = typeof rawValue === 'number' ? rawValue : parseFloat(String(rawValue || "0").replace(/[^0-9.]/g, '')) || 0;
+    return {
+      value: numValue,
+      suffix: item.suffix || (typeof rawValue === 'string' ? rawValue.replace(/[0-9.]/g, '') : ""),
+      label: isRTL ? item.label_ar : item.label_en,
+      color: (item.color as "blue" | "red") || (index % 2 === 0 ? "blue" : "red")
+    };
+  }) || [];
 
   const displayPartners = partnersData || [];
   const containerRef = useRef<HTMLDivElement>(null);
