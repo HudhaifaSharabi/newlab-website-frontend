@@ -475,23 +475,16 @@ function ProgramsGrid({
                     </h3>
                   </div>
 
-                  <span className="rounded-full bg-brand-accent/10 px-3 py-1 text-[11px] text-brand-accent ring-1 ring-brand-accent/15 dark:bg-white/10 dark:text-white/70 dark:ring-white/10">
+                  {/* <span className="rounded-full bg-brand-accent/10 px-3 py-1 text-[11px] text-brand-accent ring-1 ring-brand-accent/15 dark:bg-white/10 dark:text-white/70 dark:ring-white/10">
                     {keyLabel}
-                  </span>
+                  </span> */}
                 </div>
 
                 <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-white/75">
                   {item.desc}
                 </p>
 
-                <div className="mt-4 flex items-center gap-3 text-xs text-slate-500 dark:text-white/55">
-                  <span className="inline-flex items-center gap-2">
-                    <span className="h-2 w-2 rounded-full bg-brand-accent/70" />
-                    {metricLabel}
-                  </span>
-                  <span className="h-px flex-1 bg-slate-200/80 dark:bg-white/10" />
-                  <span className="opacity-80">{actionLabel}</span>
-                </div>
+                
               </div>
             </div>
           </div>

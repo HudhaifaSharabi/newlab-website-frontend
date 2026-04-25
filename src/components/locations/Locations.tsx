@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from "@react-google-maps/api";
 import { MapPin, Phone, ExternalLink } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -54,6 +54,17 @@ export function Locations({ locationsData }: { locationsData?: LocationsData }) 
   
   const [selectedBranchId, setSelectedBranchId] = useState<number | null>(null);
   const [hoveredBranchId, setHoveredBranchId] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.hash === '#branches') {
+      setTimeout(() => {
+        const el = document.getElementById('branches');
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 500); // Small delay to let the layout settle
+    }
+  }, []);
 
   const branches: Branch[] = locationsData?.branches?.map(b => ({
     id: b.id,

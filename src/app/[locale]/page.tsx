@@ -62,7 +62,9 @@ export default async function Page() {
       <StaticTemplateC workflowData={data?.workflow} />
       <PackagesSection packagesData={data?.packages} />
       <StatsAndPartners statsData={data?.stats} partnersData={data?.partners} />
-      <Locations locationsData={data?.locations} />
+      <div id="branches" className="scroll-mt-28">
+        <Locations locationsData={data?.locations} />
+      </div>
       <NewLabFooter />
     </>
   );

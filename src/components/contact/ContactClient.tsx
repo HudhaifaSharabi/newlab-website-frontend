@@ -1,6 +1,7 @@
 "use client";
 
 import { useLocale } from "next-intl";
+import Link from "next/link";
 import { Mail, MapPin, Phone, Send, Clock, ArrowRight } from "lucide-react";
 import { useRef, useState } from "react";
 import gsap from "gsap";
@@ -118,7 +119,7 @@ export default function ContactClient({ contactData }: ContactClientProps) {
                             <div className="h-4 w-3/4 rounded bg-white/20 animate-pulse mt-1" />
                           )}
                        </div>
-                       <a href="#" className="mt-2 inline-flex items-center gap-1 text-sm text-blue-400 hover:text-blue-300 cursor-pointer">
+                       <a href={`/${locale}/#branches`} className="mt-2 inline-flex items-center gap-1 text-sm text-blue-400 hover:text-blue-300 cursor-pointer">
                           {isRTL ? "احصل على الاتجاهات" : "Get Directions"}
                           <ArrowRight className={`h-4 w-4 ${isRTL ? "rotate-180" : ""}`} />
                        </a>
