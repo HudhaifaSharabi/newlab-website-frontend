@@ -308,9 +308,13 @@ export function PortalDashboard({ onLogout, userName, userPhone }: PortalDashboa
       const a = document.createElement("a");
       a.href = blobUrl;
       
-      // تنظيف اسم المريض لاستخدامه كاسم للملف
+      // تنظيف اسم المريض
       const cleanPatientName = report.patient_name.trim().replace(/\s+/g, "_");
-      a.download = `${cleanPatientName}.pdf`;
+      // جلب التاريخ (أو ترك مسافة فارغة في حال عدم وجوده تحسباً لأي خطأ)
+      const reportDate = report.result_date || "Unknown_Date";
+      
+      // دمج الاسم مع التاريخ ليكون اسم الملف النهائي
+      a.download = `${cleanPatientName}_${reportDate}.pdf`;
       
       document.body.appendChild(a);
       a.click();
