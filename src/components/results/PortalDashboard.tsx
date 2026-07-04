@@ -280,17 +280,51 @@ export function PortalDashboard({ onLogout, userName, userPhone }: PortalDashboa
 
   const closePdfPreview = () => setPdfPreviewUrl(null);
 
-  // FAST: trigger download via anchor href — browser handles it directly
-  const handleDownload = (report: LabReport) => {
+// FAST: trigger download via anchor href — browser handles it directly
+// FETCH file as Blob to override server filename
+  const handleDownload = async (report: LabReport) => {
     if (!report.name) return;
     markAsRead(report.name);
     showToast("جاري بدء التحميل...", "info");
-    const a = document.createElement("a");
-    a.href = `/api/portal-file?result_name=${encodeURIComponent(report.name)}&download=1`;
-    a.download = `NewLab_${report.name}.pdf`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    
+    // تفعيل حالة التحميل للزر
+    setLoadingId(report.name);
+
+    try {
+      const res = await fetch(`/api/portal-file?result_name=${encodeURIComponent(report.name)}&download=1`, {
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        showToast("فشل تحميل الملف.", "error");
+        return;
+      }
+
+      // تحويل الاستجابة إلى Blob
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+
+      // إنشاء الرابط وتنزيل الملف
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      
+      // تنظيف اسم المريض لاستخدامه كاسم للملف
+      const cleanPatientName = report.patient_name.trim().replace(/\s+/g, "_");
+      a.download = `${cleanPatientName}.pdf`;
+      
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      // تنظيف الذاكرة بعد التحميل
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+      
+    } catch (error) {
+      showToast("تعذر الاتصال بالخادم.", "error");
+    } finally {
+      // إيقاف حالة التحميل للزر
+      setLoadingId(null);
+    }
   };
 
   const handleBulkDownload = async () => {
