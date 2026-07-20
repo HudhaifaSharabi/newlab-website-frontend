@@ -30,8 +30,8 @@ export function ChatMessage({ message }: Props) {
   const handleDownload = async (e: React.MouseEvent) => {
     e.preventDefault();
     const targetUrl = reportName || attachmentUrl || fileName;
-    const directUrl = attachmentUrl || (targetUrl.startsWith("http") || targetUrl.startsWith("/") || targetUrl.startsWith("blob:") ? targetUrl : "");
     if (!targetUrl || isDownloading) return;
+    const directUrl = attachmentUrl || (targetUrl.startsWith("http") || targetUrl.startsWith("/") || targetUrl.startsWith("blob:") ? targetUrl : "");
     
     setIsDownloading(true);
     try {

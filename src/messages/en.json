@@ -1,4 +1,4 @@
-﻿{
+{
   "meta": {
     "title": "New Lab Specialized | Medical Laboratory in Sana'a",
     "description": "High-authority medical laboratory delivering accredited diagnostics, calm patient experience, and physician-grade reporting in Sana'a.",
@@ -427,6 +427,12 @@
       "space": "Spacious Environment",
       "reception": "Warm Reception",
       "standards": "International Standards"
+    }
+  },
+  "about": {
+    "meta": {
+      "title": "About Us - New Lab Specialized",
+      "description": "Learn more about New Lab Specialized, a leading medical laboratory in Sana'a, Yemen, providing accredited diagnostic services."
     }
   }
 }
