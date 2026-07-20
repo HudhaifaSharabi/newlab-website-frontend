@@ -6,7 +6,7 @@ import { Eye, EyeOff, Lock, ShieldCheck, ChevronDown, AlertCircle, X } from "luc
 import clsx from "clsx";
 
 interface PortalAuthProps {
-  onLogin: (phone: string, name: string) => void;
+  onLogin: (phone: string, name: string, userType?: string) => void;
 }
 
 interface ToastMessage {
@@ -96,7 +96,29 @@ export function PortalAuth({ onLogin }: PortalAuthProps) {
           result?.data?.full_name ||  // ✅ Primary path
           data?.full_name ||           // Fallback: top-level full_name
           phone;                       // Last resort: show phone number
-        onLogin(phone, String(displayName));
+        const userTypeStr = String(
+          result?.data?.user_type ||
+          data?.user_type ||
+          result?.data?.role ||
+          data?.role ||
+          ""
+        ).trim();
+
+        console.log("=== [PortalAuth Login Success Debug] ===", {
+          apiResult: result,
+          topData: data,
+          displayName,
+          userType: userTypeStr
+        });
+
+        const allowedRoles = ["center", "patient", "entry", "lab center", "lab patient", "results entry"];
+        if (!userTypeStr || !allowedRoles.includes(userTypeStr.toLowerCase())) {
+          setPhoneError(true);
+          setPasswordError(true);
+          throw new Error("عذراً، هذا الحساب لا يملك صلاحيات الدخول المطلوبة (Center / Patient / Entry).");
+        }
+
+        onLogin(phone, String(displayName), userTypeStr);
         return;
       }
 
@@ -106,7 +128,6 @@ export function PortalAuth({ onLogin }: PortalAuthProps) {
         data?.message ||
         "رقم الهاتف أو كلمة المرور غير صحيحة.";
 
-      setPhoneError(true);
       setPasswordError(true);
       throw new Error(typeof errMsg === "string" ? errMsg : "بيانات الدخول غير صحيحة.");
 
@@ -170,7 +191,7 @@ export function PortalAuth({ onLogin }: PortalAuthProps) {
                 "text-sm font-semibold transition-colors",
                 phoneError ? "text-red-600 dark:text-red-400" : "text-slate-700 dark:text-slate-300"
               )}>
-                رقم الهاتف {phoneError && <span className="text-xs font-normal mr-1">(مطلوب)</span>}
+                رقم الهاتف {phoneError && !phone.trim() && <span className="text-xs font-normal mr-1">(مطلوب)</span>}
               </label>
               <div className={clsx(
                 "relative flex items-center bg-white dark:bg-slate-800 border-2 rounded-xl overflow-hidden transition-all duration-200",
@@ -210,7 +231,7 @@ export function PortalAuth({ onLogin }: PortalAuthProps) {
                 "text-sm font-semibold transition-colors",
                 passwordError ? "text-red-600 dark:text-red-400" : "text-slate-700 dark:text-slate-300"
               )}>
-                كلمة السر {passwordError && <span className="text-xs font-normal mr-1">(مطلوب)</span>}
+                كلمة السر {passwordError && !password.trim() && <span className="text-xs font-normal mr-1">(مطلوب)</span>}
               </label>
               <div className={clsx(
                 "relative flex items-center bg-white dark:bg-slate-800 border-2 rounded-xl overflow-hidden transition-all duration-200",

@@ -1,8 +1,9 @@
 "use client";
 
 import { useLocale } from "next-intl";
+import { usePathname } from "next/navigation";
 import { MessageCircle, X, ChevronRight, Phone, Home } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import gsap from "gsap";
 
@@ -26,6 +27,7 @@ export interface ChatWidgetData {
 }
 
 export default function FloatingContactWidget() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [data, setData] = useState<ChatWidgetData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -75,7 +77,7 @@ export default function FloatingContactWidget() {
     fetchWidgetData();
   }, []);
 
-  const toggleWidget = () => {
+  const toggleWidget = useCallback(() => {
     if (!isOpen) {
       setIsOpen(true);
       // Open Animation
@@ -94,7 +96,7 @@ export default function FloatingContactWidget() {
         onComplete: () => setIsOpen(false)
       });
     }
-  };
+  }, [isOpen]);
 
   // Close when clicking outside
   useEffect(() => {
@@ -110,7 +112,12 @@ export default function FloatingContactWidget() {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isOpen]);
+  }, [isOpen, toggleWidget]);
+
+  // Hide floating chat widget completely on any /chat page
+  if (pathname?.includes("/chat")) {
+    return null;
+  }
 
   // Ensure we don't render an empty or broken widget at all if no data is available
   if (!isLoading && (!data || !data.branches?.length)) {
@@ -118,12 +125,12 @@ export default function FloatingContactWidget() {
   }
 
   return (
-    <div className={`fixed bottom-6 z-50 ${isRTL ? "left-6" : "right-6"}`}>
+    <div className="fixed bottom-6 z-50 right-6">
       
       {/* Popover Menu */}
       <div 
         ref={popoverRef}
-        className={`absolute bottom-20 mb-2 w-72 rounded-2xl border border-slate-200/70 bg-white/90 p-4 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-[#1a658d]/90 ${!isOpen ? "invisible opacity-0" : ""} ${isRTL ? "left-0 origin-bottom-left" : "right-0 origin-bottom-right"}`}
+        className={`absolute bottom-20 mb-2 w-72 rounded-2xl border border-slate-200/70 bg-white/90 p-4 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-[#1a658d]/90 ${!isOpen ? "invisible opacity-0" : ""} right-0 origin-bottom-right`}
       >
         <div className="mb-3 flex items-center justify-between border-b border-dashed border-slate-200 pb-3 dark:border-slate-700">
           <h3 className="font-bold text-slate-800 dark:text-white">

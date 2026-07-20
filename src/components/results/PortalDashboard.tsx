@@ -8,14 +8,17 @@ import {
   LogOut, ChevronDown, CheckSquare, Square, 
   Eye, EyeOff, Activity, Lock,
   Moon, Sun, X, ChevronRight, ChevronLeft,
-  AlertCircle, RefreshCw, Clock
+  AlertCircle, RefreshCw, Clock, MessageCircle
 } from "lucide-react";
 import clsx from "clsx";
+import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
 
 interface PortalDashboardProps {
   onLogout: () => void;
   userName: string;
   userPhone: string;
+  userType?: string;
 }
 
 // ─── API Report shape (matches Frappe get_results response) ───────────────
@@ -62,7 +65,31 @@ function formatTime(timeStr: string): string {
   }
 }
 
-export function PortalDashboard({ onLogout, userName, userPhone }: PortalDashboardProps) {
+export function PortalDashboard({ onLogout, userName, userPhone, userType }: PortalDashboardProps) {
+  const router = useRouter();
+  const locale = useLocale();
+
+  const handleChatNavigation = () => {
+    const effectiveType = userType || (() => {
+      try {
+        const raw = localStorage.getItem("portal_user_v2");
+        if (raw) return JSON.parse(raw)?.userType || "";
+      } catch {}
+      return "";
+    })();
+
+    const lower = (effectiveType || "").toLowerCase().trim();
+    const isCenterOrPatient =
+      lower === "center" ||
+      lower === "patient" ||
+      lower === "lab center" ||
+      lower === "lab patient" ||
+      lower.includes("center") ||
+      lower.includes("patient");
+    const targetRole: "center" | "lab" = isCenterOrPatient ? "center" : "lab";
+
+    router.push(`/${locale}/chat`);
+  };
   // ─── Data State ───────────────────────────────────────────────────────────
   const [reports, setReports] = useState<LabReport[]>([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -521,7 +548,19 @@ export function PortalDashboard({ onLogout, userName, userPhone }: PortalDashboa
             مرحباً بعودتك، <span className="text-slate-900 dark:text-white font-bold">{userName}</span>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <button
+              onClick={handleChatNavigation}
+              className="group relative inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#1a658d] to-[#0c3e5a] hover:from-[#124d6d] hover:to-[#082a3d] text-white font-bold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all duration-200"
+              title="المراسلة المباشرة مع المختبر"
+            >
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+              </span>
+              <MessageCircle className="w-4 h-4 transition-transform group-hover:rotate-12" />
+              <span>المحادثة المباشرة</span>
+            </button>
             {mounted && (
               <button onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
                 className="p-2 rounded-full text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700 transition">
@@ -563,7 +602,7 @@ export function PortalDashboard({ onLogout, userName, userPhone }: PortalDashboa
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
         {/* ─── KPI Banner ─── */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex items-center gap-4">
             <div className="p-3 bg-blue-50 dark:bg-blue-500/10 rounded-xl text-blue-600 dark:text-blue-400">
               <FileText className="w-6 h-6" />
@@ -589,6 +628,26 @@ export function PortalDashboard({ onLogout, userName, userPhone }: PortalDashboa
               <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">الصفحة الحالية</p>
               <p className="text-2xl font-bold text-slate-900 dark:text-white">{isLoading ? "—" : reports.length}</p>
             </div>
+          </div>
+
+          {/* Chat KPI Card */}
+          <div 
+            onClick={handleChatNavigation}
+            className="group cursor-pointer bg-gradient-to-br from-slate-900 to-slate-800 dark:from-slate-800 dark:to-slate-900 p-6 rounded-2xl shadow-md hover:shadow-xl border border-slate-700 transition-all duration-300 flex items-center justify-between text-white"
+          >
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-brand-primary/20 text-brand-primary rounded-xl group-hover:scale-110 transition-transform">
+                <MessageCircle className="w-6 h-6 text-emerald-400" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-bold text-white">المحادثة والمراسلة</p>
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                </div>
+                <p className="text-xs text-slate-300 mt-0.5">تواصل مباشر مع المختبر</p>
+              </div>
+            </div>
+            <ChevronLeft className="w-5 h-5 text-slate-400 group-hover:-translate-x-1 transition-transform" />
           </div>
         </div>
 

@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.json(data, { status: backendRes.status });
 
     // ─── Forward Frappe cookies but strip Domain= so browser accepts them ───
-    // Frappe sets cookies with Domain=newlabadmin.simsaarsoft.com which the
+    // Frappe sets cookies with Domain=admin.newlabspecialized.com which the
     // browser rejects when they arrive from localhost. We strip the Domain
     // attribute so the browser stores them under localhost instead.
     const rawCookies: string[] = [];

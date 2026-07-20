@@ -162,7 +162,7 @@ export function ResultsDashboard({ sampleId, phone }: ResultsDashboardProps) {
         stagger: 0.1,
       }
     );
-  }, [isRTL]);
+  }, [isRTL, patientData.tests]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white py-12 dark:from-slate-900 dark:to-slate-800">

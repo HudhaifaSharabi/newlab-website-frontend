@@ -1,15 +1,24 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
 import { PortalAuth } from "@/components/results/PortalAuth";
 import { PortalDashboard } from "@/components/results/PortalDashboard";
 
 interface UserInfo {
   phone: string;
   name: string;
+  userType?: string;
 }
 
 const STORAGE_KEY = "portal_user_v2";
+
+function isEntryUser(userType?: string): boolean {
+  if (!userType) return false;
+  const lower = userType.toLowerCase().trim();
+  return lower === "entry" || lower === "results entry" || lower.includes("entry");
+}
 
 // Synchronous read from localStorage — called before first render
 function getStoredUser(): UserInfo | null {
@@ -24,6 +33,9 @@ function getStoredUser(): UserInfo | null {
 }
 
 export default function ResultsPortalPage() {
+  const router = useRouter();
+  const locale = useLocale();
+
   // Initialize from localStorage synchronously to avoid any flash
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [ready, setReady] = useState(false);
@@ -31,17 +43,28 @@ export default function ResultsPortalPage() {
   // useEffect reads localStorage after first render — avoids SSR warning
   useEffect(() => {
     const stored = getStoredUser();
-    if (stored) setUserInfo(stored);
+    if (stored) {
+      if (isEntryUser(stored.userType)) {
+        router.replace(`/${locale}/chat`);
+        return;
+      }
+      setUserInfo(stored);
+    }
     setReady(true);
-  }, []);
+  }, [router, locale]);
 
-  const handleLogin = (phone: string, name: string) => {
-    const info: UserInfo = { phone, name };
-    setUserInfo(info);
-    // Persist in localStorage so next visit is instant
+  const handleLogin = (phone: string, name: string, userType?: string) => {
+    const info: UserInfo = { phone, name, userType };
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(info));
     } catch {}
+
+    if (isEntryUser(userType)) {
+      router.push(`/${locale}/chat`);
+      return;
+    }
+
+    setUserInfo(info);
   };
 
   const handleLogout = async () => {
@@ -70,6 +93,7 @@ export default function ResultsPortalPage() {
         <PortalDashboard
           userName={userInfo.name}
           userPhone={userInfo.phone}
+          userType={userInfo.userType}
           onLogout={handleLogout}
         />
       )}

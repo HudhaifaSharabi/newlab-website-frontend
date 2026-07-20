@@ -29,6 +29,15 @@ export async function GET(request: NextRequest) {
       signal: AbortSignal.timeout(12000),
     });
 
+    if (!backendRes.ok) {
+      const errText = await backendRes.text();
+      console.error("🚨 Frappe GET Results Error:", backendRes.status, errText);
+      return new Response(errText, { 
+        status: backendRes.status,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
     const data = await backendRes.json();
 
     // Forward any Set-Cookie headers (e.g. session refresh)
