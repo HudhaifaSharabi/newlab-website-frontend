@@ -1,7 +1,19 @@
 /** @type {import('next').NextConfig} */
 const withNextIntl = require('next-intl/plugin')('./src/i18n/request.ts');
 
-const nextConfig = withNextIntl({
+const withPWA = require('@ducanh2912/next-pwa').default({
+  dest: 'public',
+  cacheOnFrontEndNav: true,
+  aggressiveFrontEndNavCaching: true,
+  reloadOnOnline: true,
+  swcMinify: true,
+  disable: process.env.NODE_ENV === 'development',
+  workboxOptions: {
+    disableDevLogs: true,
+  },
+});
+
+const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['lucide-react'],
   experimental: {
@@ -55,6 +67,6 @@ const nextConfig = withNextIntl({
       }
     ];
   }
-});
+};
 
-module.exports = nextConfig;
+module.exports = withNextIntl(withPWA(nextConfig));

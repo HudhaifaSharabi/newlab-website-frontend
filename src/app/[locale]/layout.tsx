@@ -5,9 +5,13 @@ import {NextIntlClientProvider} from 'next-intl';
 import {getMessages, getTranslations, setRequestLocale} from 'next-intl/server';
 import {ThemeProvider} from 'next-themes';
 import clsx from 'clsx';
-import type {Metadata} from 'next';
+import type {Metadata, Viewport} from 'next';
 import FloatingContactWidget from '@/components/FloatingContactWidget';
 import GlobalLoader from '@/components/GlobalLoader';
+
+export const viewport: Viewport = {
+  themeColor: '#0f172a',
+};
 
 const resolveLocale = (locale: string): (typeof locales)[number] =>
   (locales.includes(locale as (typeof locales)[number]) ? locale : defaultLocale) as (typeof locales)[number];

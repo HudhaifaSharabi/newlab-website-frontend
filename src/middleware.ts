@@ -23,6 +23,12 @@ export default function middleware(request: NextRequest) {
 
   // إذا كان الزائر قادماً من النطاق الفرعي
   if (hostname === targetSubdomain) {
+    // استثناء مسار الشات لكي يعمل بشكل طبيعي على النطاق الفرعي
+    const isChatRoute = url.pathname.startsWith('/chat') || locales.some(locale => url.pathname.startsWith(`/${locale}/chat`));
+    if (isChatRoute) {
+      return intlMiddleware(request);
+    }
+
     // التحقق المسبق: إذا كان المسار لا يبدأ بـ /ar/results قم بإضافتها
     if (!url.pathname.startsWith('/ar/results')) {
         url.pathname = `/ar/results${url.pathname === '/' ? '' : url.pathname}`;

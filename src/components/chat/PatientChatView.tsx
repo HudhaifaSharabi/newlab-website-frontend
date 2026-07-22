@@ -3,6 +3,9 @@
 import React, { useState, useEffect, useRef, DragEvent, useCallback } from "react";
 import { ChatMessage, MessageData } from "./ChatMessage";
 import { ChatInput } from "./ChatInput";
+import { useNetwork } from "@/hooks/useNetwork";
+import InstallPrompt from "@/components/pwa/InstallPrompt";
+import { AlertCircle } from "lucide-react";
 
 interface Props {
   role: "center";
@@ -50,6 +53,7 @@ export function PatientChatView({ role }: Props) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isNearBottomRef = useRef(true);
   const [isDragging, setIsDragging] = useState(false);
+  const isOnline = useNetwork();
   const messagesRef = useRef(messages);
   const currentUserRef = useRef<string>("");
 
@@ -339,6 +343,16 @@ export function PatientChatView({ role }: Props) {
       className="flex flex-col h-full w-full bg-slate-50 dark:bg-slate-950 overflow-hidden relative" 
       dir="rtl"
     >
+      {!isOnline && (
+        <div className="bg-amber-500 text-white px-4 py-1.5 text-center text-xs font-bold flex items-center justify-center gap-2 z-[100]">
+          <AlertCircle className="w-3.5 h-3.5" />
+          <span>أنت الآن في وضع عدم الاتصال (Offline)</span>
+        </div>
+      )}
+      <div className="absolute top-4 left-4 z-20">
+        <InstallPrompt />
+      </div>
+
       {/* Messages */}
       <div 
         ref={scrollContainerRef}

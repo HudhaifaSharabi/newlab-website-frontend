@@ -46,7 +46,8 @@ export function buildMetadata(locale: (typeof locales)[number], t: (key: string)
       card: 'summary_large_image',
       title: t('meta.title'),
       description: t('meta.description')
-    }
+    },
+    manifest: '/manifest.json'
   };
 }
 

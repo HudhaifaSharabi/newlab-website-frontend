@@ -13,6 +13,8 @@ import {
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
+import { useNetwork } from "@/hooks/useNetwork";
+import InstallPrompt from "@/components/pwa/InstallPrompt";
 
 interface PortalDashboardProps {
   onLogout: () => void;
@@ -68,6 +70,7 @@ function formatTime(timeStr: string): string {
 export function PortalDashboard({ onLogout, userName, userPhone, userType }: PortalDashboardProps) {
   const router = useRouter();
   const locale = useLocale();
+  const isOnline = useNetwork();
 
   const handleChatNavigation = () => {
     const effectiveType = userType || (() => {
@@ -468,6 +471,12 @@ export function PortalDashboard({ onLogout, userName, userPhone, userType }: Por
 
   return (
     <div dir="rtl" className="min-h-screen bg-slate-50 dark:bg-slate-900 font-sans">
+      {!isOnline && (
+        <div className="bg-amber-500 text-white px-4 py-2 text-center text-sm font-bold flex items-center justify-center gap-2 z-50 relative">
+          <AlertCircle className="w-4 h-4" />
+          <span>أنت حالياً تتصفح بدون إنترنت (وضع Offline). بعض الميزات قد لا تكون متاحة.</span>
+        </div>
+      )}
 
       {/* ─── Toast Notification ─── */}
       {toast && (
@@ -549,6 +558,7 @@ export function PortalDashboard({ onLogout, userName, userPhone, userType }: Por
           </div>
 
           <div className="flex items-center gap-3 sm:gap-4">
+            <InstallPrompt />
             <button
               onClick={handleChatNavigation}
               className="group relative inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#1a658d] to-[#0c3e5a] hover:from-[#124d6d] hover:to-[#082a3d] text-white font-bold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all duration-200"

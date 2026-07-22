@@ -3,7 +3,9 @@
 import React, { useState, useEffect, useRef, DragEvent, useCallback } from "react";
 import { ChatMessage, MessageData } from "./ChatMessage";
 import { ChatInput } from "./ChatInput";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, AlertCircle } from "lucide-react";
+import { useNetwork } from "@/hooks/useNetwork";
+import InstallPrompt from "@/components/pwa/InstallPrompt";
 
 interface Contact {
   id: string;
@@ -127,6 +129,7 @@ export function LabChatView() {
   const [filter, setFilter] = useState<FilterType>("all");
   const [showMobileChat, setShowMobileChat] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const isOnline = useNetwork();
   
   const [messages, setMessages] = useState<MessageData[]>([]);
   
@@ -627,10 +630,16 @@ const markMessagesRead = (contactId: string) => {
   };
 
   return (
-    <div className="flex h-full w-full bg-white dark:bg-slate-900 overflow-hidden" dir="rtl">
+    <div className="flex h-full w-full bg-white dark:bg-slate-900 overflow-hidden relative" dir="rtl">
+      {!isOnline && (
+        <div className="absolute top-0 inset-x-0 bg-amber-500 text-white px-4 py-1.5 text-center text-xs font-bold flex items-center justify-center gap-2 z-[100]">
+          <AlertCircle className="w-3.5 h-3.5" />
+          <span>أنت الآن في وضع عدم الاتصال (Offline)</span>
+        </div>
+      )}
       
       {/* Sidebar - Hidden on mobile if chat is active */}
-      <div className={`${showMobileChat ? 'hidden md:flex' : 'flex'} w-full md:w-1/3 lg:w-[350px] border-l border-slate-200 dark:border-slate-800 flex-col bg-white dark:bg-slate-900 z-10 flex-shrink-0`}>
+      <div className={`${showMobileChat ? 'hidden md:flex' : 'flex'} w-full md:w-1/3 lg:w-[350px] border-l border-slate-200 dark:border-slate-800 flex-col bg-white dark:bg-slate-900 z-10 flex-shrink-0 ${!isOnline ? 'pt-8' : ''}`}>
         <div className="p-3 md:p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col gap-3">
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
@@ -715,7 +724,7 @@ const markMessagesRead = (contactId: string) => {
 
       {/* Main Chat Area - Hidden on mobile if NO chat is active */}
       <div 
-        className={`${!showMobileChat ? 'hidden md:flex' : 'flex'} flex-1 flex-col relative bg-slate-50 dark:bg-slate-950 overflow-hidden`}
+        className={`${!showMobileChat ? 'hidden md:flex' : 'flex'} flex-1 flex-col relative bg-slate-50 dark:bg-slate-950 overflow-hidden ${!isOnline ? 'pt-8' : ''}`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
@@ -749,6 +758,9 @@ const markMessagesRead = (contactId: string) => {
                     <span className="text-slate-400">آخر ظهور: {activeContact.time}</span>
                   )}
                 </span>
+              </div>
+              <div className="mr-auto hidden sm:block">
+                <InstallPrompt />
               </div>
             </div>
 
