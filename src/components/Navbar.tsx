@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import clsx from "clsx";
 import { FlaskConical, Menu, Moon, Sun, X } from "lucide-react";
+import InstallPrompt from "@/components/pwa/InstallPrompt";
 
 type Language = "en" | "ar";
 
@@ -178,6 +179,7 @@ export function Navbar({ language, onLanguageChange, isRTL = false }: NavbarProp
             </div>
 
             <nav className={clsx("flex flex-col gap-2 px-4 pb-4 text-sm font-semibold", isRTL && "items-end")}>
+              <InstallPrompt variant="menu" onCloseMenu={() => setOpen(false)} />
               {navLinks.map((link) => (
                 <Link
                   key={link.key}

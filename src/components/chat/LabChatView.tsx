@@ -519,6 +519,20 @@ const markMessagesRead = (contactId: string) => {
 
           const json = await res.json();
           const returnedMsg = json?.message?.data || json?.data;
+
+          // Trigger targeted FCM push notification to specific patient device
+          fetch("/api/notifications/send", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              targetUser: activeContact.id,
+              title: `رسالة من ${activeContact.name || "المختبر"}`,
+              message: text,
+              url: "/ar/chat",
+              type: "chat"
+            })
+          }).catch(() => {});
+
           if (returnedMsg?.id) {
             const realId = String(returnedMsg.id);
             setMessages(prev => {
@@ -760,7 +774,7 @@ const markMessagesRead = (contactId: string) => {
                 </span>
               </div>
               <div className="mr-auto hidden sm:block">
-                <InstallPrompt />
+                {/* <InstallPrompt /> */}
               </div>
             </div>
 

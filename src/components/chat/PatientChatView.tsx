@@ -4,8 +4,8 @@ import React, { useState, useEffect, useRef, DragEvent, useCallback } from "reac
 import { ChatMessage, MessageData } from "./ChatMessage";
 import { ChatInput } from "./ChatInput";
 import { useNetwork } from "@/hooks/useNetwork";
-import InstallPrompt from "@/components/pwa/InstallPrompt";
 import { AlertCircle } from "lucide-react";
+import NotificationBanner from "@/components/notifications/NotificationBanner";
 
 interface Props {
   role: "center";
@@ -75,6 +75,11 @@ export function PatientChatView({ role }: Props) {
         }
 
         currentUserRef.current = currentUser;
+
+        // Register FCM Notification Token for patient chat alerts
+        import("@/lib/firebase").then(({ requestNotificationPermission }) => {
+          requestNotificationPermission(currentUser);
+        }).catch(() => {});
 
         // If a different user is now logged in, wipe ALL cached messages
         if (savedUser && currentUser.toLowerCase() !== savedUser.toLowerCase()) {
@@ -343,15 +348,14 @@ export function PatientChatView({ role }: Props) {
       className="flex flex-col h-full w-full bg-slate-50 dark:bg-slate-950 overflow-hidden relative" 
       dir="rtl"
     >
+      <NotificationBanner userIdentifier={currentUserRef.current} />
       {!isOnline && (
         <div className="bg-amber-500 text-white px-4 py-1.5 text-center text-xs font-bold flex items-center justify-center gap-2 z-[100]">
           <AlertCircle className="w-3.5 h-3.5" />
           <span>أنت الآن في وضع عدم الاتصال (Offline)</span>
         </div>
       )}
-      <div className="absolute top-4 left-4 z-20">
-        <InstallPrompt />
-      </div>
+
 
       {/* Messages */}
       <div 

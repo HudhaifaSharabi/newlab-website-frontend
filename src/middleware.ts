@@ -23,16 +23,34 @@ export default function middleware(request: NextRequest) {
 
   // إذا كان الزائر قادماً من النطاق الفرعي
   if (hostname === targetSubdomain) {
+    const pathname = url.pathname;
+
     // استثناء مسار الشات لكي يعمل بشكل طبيعي على النطاق الفرعي
-    const isChatRoute = url.pathname.startsWith('/chat') || locales.some(locale => url.pathname.startsWith(`/${locale}/chat`));
+    const isChatRoute = pathname.startsWith('/chat') || locales.some(locale => pathname.startsWith(`/${locale}/chat`));
     if (isChatRoute) {
       return intlMiddleware(request);
     }
 
-    // التحقق المسبق: إذا كان المسار لا يبدأ بـ /ar/results قم بإضافتها
-    if (!url.pathname.startsWith('/ar/results')) {
-        url.pathname = `/ar/results${url.pathname === '/' ? '' : url.pathname}`;
+    // استخراج اللغة إذا كانت موجودة في المسار (مثل /ar أو /en)
+    let locale: string = defaultLocale;
+    let pathWithoutLocale = pathname;
+
+    for (const l of locales) {
+      if (pathname === `/${l}` || pathname.startsWith(`/${l}/`)) {
+        locale = l;
+        pathWithoutLocale = pathname.substring(l.length + 1) || '/';
+        break;
+      }
     }
+
+    // إذا كان المسار بالأساس هو صفحة النتائج
+    if (pathWithoutLocale === '/results' || pathWithoutLocale.startsWith('/results/')) {
+      url.pathname = `/${locale}${pathWithoutLocale}`;
+      return NextResponse.rewrite(url);
+    }
+
+    // لتسهيل الدخول من الـ PWA والنوافذ الرئيسية: إعادة توجيه المسار إلى صفحة النتائج باللغة المناسبة
+    url.pathname = `/${locale}/results`;
     return NextResponse.rewrite(url);
   }
 

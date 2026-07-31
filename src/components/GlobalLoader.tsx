@@ -21,7 +21,7 @@ export default function GlobalLoader() {
       handleComplete();
     } else {
       window.addEventListener("load", handleComplete);
-      const fallbackTimer = setTimeout(handleComplete, 6000);
+      const fallbackTimer = setTimeout(handleComplete, 1200);
       return () => {
         window.removeEventListener("load", handleComplete);
         clearTimeout(fallbackTimer);

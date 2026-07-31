@@ -42,15 +42,21 @@ export default function ResultsPortalPage() {
 
   // useEffect reads localStorage after first render — avoids SSR warning
   useEffect(() => {
-    const stored = getStoredUser();
-    if (stored) {
-      if (isEntryUser(stored.userType)) {
-        router.replace(`/${locale}/chat`);
-        return;
+    try {
+      const stored = getStoredUser();
+      if (stored) {
+        if (isEntryUser(stored.userType)) {
+          setReady(true);
+          router.replace(`/${locale}/chat`);
+          return;
+        }
+        setUserInfo(stored);
       }
-      setUserInfo(stored);
+    } catch (e) {
+      console.error("Error reading stored user:", e);
+    } finally {
+      setReady(true);
     }
-    setReady(true);
   }, [router, locale]);
 
   const handleLogin = (phone: string, name: string, userType?: string) => {
@@ -82,8 +88,15 @@ export default function ResultsPortalPage() {
     }).catch(() => {});
   };
 
-  // Don't render anything until localStorage is read (one synchronous frame)
-  if (!ready) return null;
+  // Render centered loading indicator while reading storage instead of returning blank null
+  if (!ready) {
+    return (
+      <div className="w-full min-h-screen bg-slate-900 flex flex-col items-center justify-center text-slate-100" dir="rtl">
+        <div className="w-9 h-9 border-3 border-cyan-500 border-t-transparent rounded-full animate-spin mb-3" />
+        <span className="text-sm font-medium text-slate-400">جاري تحميل بوابة النتائج...</span>
+      </div>
+    );
+  }
 
   return (
     <main className="w-full min-h-screen bg-slate-50 dark:bg-slate-900">

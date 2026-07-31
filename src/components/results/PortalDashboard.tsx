@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
 import { useNetwork } from "@/hooks/useNetwork";
 import InstallPrompt from "@/components/pwa/InstallPrompt";
+import NotificationBanner from "@/components/notifications/NotificationBanner";
 
 interface PortalDashboardProps {
   onLogout: () => void;
@@ -203,6 +204,21 @@ export function PortalDashboard({ onLogout, userName, userPhone, userType }: Por
     loadBranches();
     loadTicker();
   }, []);
+
+  // ─── Setup Targeted FCM Push & In-App Notifications ───────────────────────
+  useEffect(() => {
+    import("@/lib/firebase").then(({ requestNotificationPermission, listenForegroundNotifications }) => {
+      if (userPhone || userName) {
+        requestNotificationPermission(userPhone || userName);
+      }
+
+      listenForegroundNotifications((payload) => {
+        const title = payload.notification?.title || payload.data?.title || "نتيجة جديدة";
+        const body = payload.notification?.body || payload.data?.body || "تمت إضافة نتيجة فحص جديدة في حسابك.";
+        showToast(`🔔 ${title}: ${body}`, "info");
+      });
+    }).catch(() => {});
+  }, [userPhone, userName, showToast]);
 
   // ─── Fetch Reports from Real API ──────────────────────────────────────────
   const fetchReports = useCallback(async () => {
@@ -471,6 +487,7 @@ export function PortalDashboard({ onLogout, userName, userPhone, userType }: Por
 
   return (
     <div dir="rtl" className="min-h-screen bg-slate-50 dark:bg-slate-900 font-sans">
+      <NotificationBanner userIdentifier={userPhone || userName} />
       {!isOnline && (
         <div className="bg-amber-500 text-white px-4 py-2 text-center text-sm font-bold flex items-center justify-center gap-2 z-50 relative">
           <AlertCircle className="w-4 h-4" />
@@ -558,7 +575,6 @@ export function PortalDashboard({ onLogout, userName, userPhone, userType }: Por
           </div>
 
           <div className="flex items-center gap-3 sm:gap-4">
-            <InstallPrompt />
             <button
               onClick={handleChatNavigation}
               className="group relative inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#1a658d] to-[#0c3e5a] hover:from-[#124d6d] hover:to-[#082a3d] text-white font-bold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all duration-200"
@@ -593,6 +609,7 @@ export function PortalDashboard({ onLogout, userName, userPhone, userType }: Por
                     <p className="text-sm font-bold text-slate-900 dark:text-white">{userName}</p>
                     <p className="text-xs text-slate-500" dir="ltr">{userPhone}</p>
                   </div>
+                  <InstallPrompt variant="menu" onCloseMenu={() => setProfileOpen(false)} />
                   <button onClick={() => { setProfileOpen(false); setPasswordModalOpen(true); }}
                     className="w-full flex justify-end flex-row-reverse items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition font-medium">
                     تغيير كلمة المرور <Lock className="w-4 h-4 ml-auto" />

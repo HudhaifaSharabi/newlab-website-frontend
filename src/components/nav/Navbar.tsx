@@ -12,6 +12,7 @@ import {SunIcon, MoonIcon, Bars3Icon, XMarkIcon} from '@heroicons/react/24/outli
 import {Container} from '@/components/ui/Container';
 import {prefersReducedMotion} from '@/lib/motion';
 import Image from 'next/image';
+import InstallPrompt from '@/components/pwa/InstallPrompt';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -238,31 +239,34 @@ export default function Navbar() {
             );
           })}
         </nav>
-        <div className="mt-4 flex items-center justify-between gap-3">
-          <Link
-            href={targetHref}
-            locale={targetLocale}
-            className="rounded-full border border-slate-200 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-700 transition hover:border-[var(--accent-blue)] hover:text-[var(--accent-blue)] dark:border-slate-700 dark:text-slate-100"
-            onClick={() => setOpen(false)}
-          >
-            {t('language')}
-          </Link>
-          <button
-            type="button"
-            aria-label="Toggle theme"
-            onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-700 transition hover:border-[var(--accent-blue)] hover:text-[var(--accent-blue)] dark:border-slate-700 dark:text-slate-100"
-          >
-            {mounted && theme === 'dark' ? <SunIcon className="h-5 w-5" /> : <MoonIcon className="h-5 w-5" />}
-          </button>
-          <Link
-            href="#overview"
-            className="flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-white shadow-soft transition hover:-translate-y-0.5"
-            style={{background: 'linear-gradient(135deg, var(--accent-blue), var(--accent-red))'}}
-            onClick={() => setOpen(false)}
-          >
-            {t('book')}
-          </Link>
+        <div className="mt-4 flex flex-col gap-2">
+          <InstallPrompt variant="menu" onCloseMenu={() => setOpen(false)} className="rounded-xl border border-slate-200 dark:border-slate-700/80" />
+          <div className="flex items-center justify-between gap-3 pt-2">
+            <Link
+              href={targetHref}
+              locale={targetLocale}
+              className="rounded-full border border-slate-200 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-700 transition hover:border-[var(--accent-blue)] hover:text-[var(--accent-blue)] dark:border-slate-700 dark:text-slate-100"
+              onClick={() => setOpen(false)}
+            >
+              {t('language')}
+            </Link>
+            <button
+              type="button"
+              aria-label="Toggle theme"
+              onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-700 transition hover:border-[var(--accent-blue)] hover:text-[var(--accent-blue)] dark:border-slate-700 dark:text-slate-100"
+            >
+              {mounted && theme === 'dark' ? <SunIcon className="h-5 w-5" /> : <MoonIcon className="h-5 w-5" />}
+            </button>
+            <Link
+              href="#overview"
+              className="flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-white shadow-soft transition hover:-translate-y-0.5"
+              style={{background: 'linear-gradient(135deg, var(--accent-blue), var(--accent-red))'}}
+              onClick={() => setOpen(false)}
+            >
+              {t('book')}
+            </Link>
+          </div>
         </div>
       </div>
     </header>

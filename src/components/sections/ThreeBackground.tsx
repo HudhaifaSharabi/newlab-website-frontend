@@ -40,10 +40,16 @@ export function ThreeBackground({orderProgress, themeMode}: ThreeBackgroundProps
     const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 60);
     camera.position.set(0, 0.15, 9.5);
 
-    const renderer = new THREE.WebGLRenderer({antialias: true, alpha: true, powerPreference: 'high-performance'});
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.8));
-    container.appendChild(renderer.domElement);
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({antialias: true, alpha: true, powerPreference: 'high-performance'});
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.8));
+      container.appendChild(renderer.domElement);
+    } catch (e) {
+      console.warn('WebGL context creation failed on device:', e);
+      return;
+    }
 
     const resize = () => {
       if (!container) return;
@@ -328,7 +334,7 @@ export function ThreeBackground({orderProgress, themeMode}: ThreeBackgroundProps
       window.removeEventListener('pointermove', handlePointerMove);
       resizeObserver.disconnect();
       if (animationId.current) cancelAnimationFrame(animationId.current);
-      renderer.dispose();
+      renderer?.dispose();
       layerAGeometry.dispose();
       layerAMaterial.dispose();
       helixGeometry.dispose();
@@ -337,7 +343,9 @@ export function ThreeBackground({orderProgress, themeMode}: ThreeBackgroundProps
       nodeMaterial.dispose();
       lineGeometry.dispose();
       lineMaterial.dispose();
-      container.removeChild(renderer.domElement);
+      if (renderer?.domElement && container.contains(renderer.domElement)) {
+        container.removeChild(renderer.domElement);
+      }
       renderFrameRef.current = null;
       refreshPaletteRef.current = null;
     };

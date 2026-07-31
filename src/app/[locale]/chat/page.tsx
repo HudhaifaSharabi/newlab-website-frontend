@@ -7,6 +7,8 @@ import { PatientChatView } from "@/components/chat/PatientChatView";
 import { LabChatView } from "@/components/chat/LabChatView";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
+import InstallPrompt from "@/components/pwa/InstallPrompt";
+import NotificationBanner from "@/components/notifications/NotificationBanner";
 
 type Role = "center" | "lab" | "entry" | null;
 
@@ -19,64 +21,89 @@ function ChatPageContent() {
   const [role, setRole] = useState<Role>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     setIsDark(resolvedTheme === "dark" || document.documentElement.classList.contains("dark"));
   }, [resolvedTheme]);
 
   useEffect(() => {
-    let target: Role = "lab";
-    try {
-      const stored = localStorage.getItem("portal_user_v2");
-      const currentUser = localStorage.getItem("newlab_current_user");
+    let isMounted = true;
 
-      // 🚨 التحقق الفوري: إذا لم يكن هناك مستخدم في الذاكرة (سجل خروج أو لم يسجل بعد)، يتم التوجيه لصفحة الدخول فوراً
-      if (!stored && !currentUser) {
-        console.warn("=== [Auth Guard] No active login in localStorage. Redirecting to login (/ar/results) ===");
-        router.replace("/ar/results");
-        return;
-      }
+    async function verifyAuth() {
+      try {
+        const stored = localStorage.getItem("portal_user_v2");
+        const currentUser = localStorage.getItem("newlab_current_user");
 
-      // التحقق عبر السيرفر من صلاحية الجلسة (cookie session)
-      fetch("/api/portal-session", { credentials: "include", cache: "no-store" })
-        .then(r => r.json())
-        .then(data => {
-          if (!data?.authenticated || data?.user === "Guest" || !data?.user) {
-            console.warn("=== [Auth Guard] Backend session expired or Guest. Redirecting to login ===");
-            localStorage.removeItem("portal_user_v2");
-            localStorage.removeItem("newlab_current_user");
+        // 🚨 التحقق السريع من localStorage: إذا لم يكن هناك مستخدم مسجل، التوجيه فورا ودون عرض المحادثة
+        if (!stored && !currentUser) {
+          if (isMounted) {
+            setIsAuthenticated(false);
+            setCheckingAuth(false);
             router.replace("/ar/results");
           }
-        })
-        .catch(() => {});
+          return;
+        }
 
-      console.log("=== [ChatPageContent Debug] Raw portal_user_v2 ===", stored);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        console.log("=== [ChatPageContent Debug] Parsed user info ===", parsed);
-        const st = (parsed?.userType || "").toLowerCase().trim();
-        if (
-          st === "center" ||
-          st === "patient" ||
-          st === "lab center" ||
-          st === "lab patient" ||
-          st.includes("center") ||
-          st.includes("patient")
-        ) {
+        // 🔒 التحقق المزدوج عبر السيرفر للتأكد من أن الجلسة صادقة وليست زائرة
+        const res = await fetch("/api/portal-session", { credentials: "include", cache: "no-store" });
+        const data = await res.json();
+
+        if (!data?.authenticated || data?.user === "Guest" || !data?.user) {
+          localStorage.removeItem("portal_user_v2");
+          localStorage.removeItem("newlab_current_user");
+          if (isMounted) {
+            setIsAuthenticated(false);
+            setCheckingAuth(false);
+            router.replace("/ar/results");
+          }
+          return;
+        }
+
+        // تحديد دور المستخدم (مركز أو مختبر)
+        let target: Role = "lab";
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          const st = (parsed?.userType || "").toLowerCase().trim();
+          if (
+            st === "center" ||
+            st === "patient" ||
+            st === "lab center" ||
+            st === "lab patient" ||
+            st.includes("center") ||
+            st.includes("patient")
+          ) {
+            target = "center";
+          } else {
+            target = "lab";
+          }
+        } else if (roleParam === "center" || roleParam === "Lab Center" || roleParam === "Patient") {
           target = "center";
         } else {
           target = "lab";
         }
-      } else if (roleParam === "center" || roleParam === "Lab Center" || roleParam === "Patient") {
-        target = "center";
-      } else {
-        target = "lab";
+
+        if (isMounted) {
+          setRole(target);
+          setIsAuthenticated(true);
+          setCheckingAuth(false);
+        }
+      } catch (err) {
+        console.error("Auth check failed:", err);
+        if (isMounted) {
+          setIsAuthenticated(false);
+          setCheckingAuth(false);
+          router.replace("/ar/results");
+        }
       }
-    } catch (err) {
-      console.error("=== [ChatPageContent Debug] Error reading localStorage ===", err);
     }
-    console.log("=== [ChatPageContent Debug] Resolved Role ===", target);
-    setRole(target);
+
+    verifyAuth();
+
+    return () => {
+      isMounted = false;
+    };
   }, [roleParam, router]);
 
   const handleLogout = async () => {
@@ -132,6 +159,15 @@ function ChatPageContent() {
       router.push(`?`);
     }
   };
+
+  if (checkingAuth || !isAuthenticated) {
+    return (
+      <div className="w-full h-screen bg-slate-900 flex flex-col items-center justify-center text-slate-200" dir="rtl">
+        <div className="w-9 h-9 border-3 border-cyan-500 border-t-transparent rounded-full animate-spin mb-3" />
+        <span className="text-sm font-medium text-slate-400">جاري التحقق من تسجيل الدخول...</span>
+      </div>
+    );
+  }
 
   if (!role) {
     return <RoleSelector onSelectRole={selectRole} />;
@@ -195,6 +231,18 @@ function ChatPageContent() {
                   <span className="text-lg">{isDark ? "☀️" : "🌙"}</span>
                   <span className="font-semibold">{isDark ? "الوضع الفاتح" : "الوضع الداكن"}</span>
                 </button>
+                <button
+                  onClick={async () => {
+                    setMenuOpen(false);
+                    const { requestNotificationPermission } = await import("@/lib/firebase");
+                    await requestNotificationPermission(role || undefined);
+                  }}
+                  className="w-full text-right px-4 py-3 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-3 transition-colors"
+                >
+                  <span className="text-lg">🔔</span>
+                  <span className="font-semibold">تفعيل الإشعارات المباشرة</span>
+                </button>
+                <InstallPrompt variant="menu" onCloseMenu={() => setMenuOpen(false)} />
                 {role !== "lab" && (
                   <Link
                     href="/ar/results"
@@ -218,6 +266,7 @@ function ChatPageContent() {
           )}
         </div>
       </header>
+      <NotificationBanner userIdentifier={role || undefined} />
 
       {/* Main Content Area */}
       <div className="flex-1 overflow-hidden flex w-full">
