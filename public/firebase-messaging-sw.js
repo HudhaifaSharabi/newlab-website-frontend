@@ -14,56 +14,28 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-// 1. Handle Background Notification payloads via Firebase Messaging
+// Handle Background Notification payloads cleanly for Mobile & Desktop
 messaging.onBackgroundMessage((payload) => {
   console.log('[firebase-messaging-sw.js] Received background message:', payload);
 
   const notificationTitle = payload.notification?.title || payload.data?.title || 'مختبرات نيولاب التخصصية';
   const notificationOptions = {
     body: payload.notification?.body || payload.data?.body || 'لديك إشعار جديد من مختبرات نيولاب',
-    icon: payload.notification?.icon || payload.data?.icon || '/logo192.jpeg',
+    icon: '/logo192.jpeg',
     badge: '/logo192.jpeg',
-    tag: 'newlab-notification',
+    tag: payload.data?.tag || 'newlab-mobile-push',
     data: {
       url: payload.data?.url || '/ar/chat',
       targetUser: payload.data?.targetUser || ''
     },
-    vibrate: [200, 100, 200]
+    vibrate: [200, 100, 200],
+    renotify: true,
   };
 
-  self.registration.showNotification(notificationTitle, notificationOptions);
+  return self.registration.showNotification(notificationTitle, notificationOptions);
 });
 
-// 2. Direct Raw Web Push Listener (guarantees OS notification popup on screen)
-self.addEventListener('push', (event) => {
-  console.log('[firebase-messaging-sw.js] Push Event Raw Event:', event);
-  if (!event.data) return;
-
-  let payload = {};
-  try {
-    payload = event.data.json();
-  } catch (e) {
-    payload = { notification: { body: event.data.text() } };
-  }
-
-  const title = payload.notification?.title || payload.data?.title || 'مختبرات نيولاب';
-  const body = payload.notification?.body || payload.data?.body || 'لديك إشعار جديد';
-
-  const options = {
-    body,
-    icon: '/logo192.jpeg',
-    badge: '/logo192.jpeg',
-    tag: 'newlab-push-direct',
-    data: {
-      url: payload.data?.url || '/ar/chat'
-    },
-    vibrate: [200, 100, 200]
-  };
-
-  event.waitUntil(self.registration.showNotification(title, options));
-});
-
-// 3. Handle notification click event -> opens target page (Results or Chat)
+// Handle notification click event -> opens target page (Results or Chat)
 self.addEventListener('notificationclick', (event) => {
   console.log('[firebase-messaging-sw.js] Notification click received:', event.notification);
   event.notification.close();
