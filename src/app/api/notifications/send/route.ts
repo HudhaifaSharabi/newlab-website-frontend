@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
 
     let targetTokens = Array.from(tokensSet);
 
-    console.log(`[FCM Send Multi-Device] Target: [${targetUser}], Devices Count: ${targetTokens.length}`);
+    console.log(`[FCM Send Mobile & Desktop] Target: [${targetUser}], Devices Count: ${targetTokens.length}`);
 
     const notificationTitle = title;
     const notificationBody = message;
@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
     let fcmResults: any[] = [];
     let methodUsed = "none";
 
-    // 2A. Send via FCM HTTP v1 API
+    // 2A. Send via FCM HTTP v1 API with High-Priority Mobile (Android & iOS) + WebPush Payload
     const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
     const privateKey = process.env.FIREBASE_PRIVATE_KEY;
     const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "new-lab-71268";
@@ -119,6 +119,50 @@ export async function POST(req: NextRequest) {
                     body: notificationBody,
                     url: notificationUrl,
                     type: type || "chat",
+                  },
+                  android: {
+                    priority: "HIGH",
+                    notification: {
+                      title: notificationTitle,
+                      body: notificationBody,
+                      icon: "/logo192.jpeg",
+                      color: "#0891b2",
+                      sound: "default",
+                      default_sound: true,
+                      notification_priority: "PRIORITY_MAX",
+                      visibility: "PUBLIC",
+                    },
+                  },
+                  webpush: {
+                    headers: {
+                      Urgency: "high",
+                    },
+                    notification: {
+                      title: notificationTitle,
+                      body: notificationBody,
+                      icon: "/logo192.jpeg",
+                      badge: "/logo192.jpeg",
+                      vibrate: [200, 100, 200],
+                      requireInteraction: true,
+                    },
+                    fcm_options: {
+                      link: notificationUrl,
+                    },
+                  },
+                  apns: {
+                    headers: {
+                      "apns-priority": "10",
+                    },
+                    payload: {
+                      aps: {
+                        alert: {
+                          title: notificationTitle,
+                          body: notificationBody,
+                        },
+                        sound: "default",
+                        badge: 1,
+                      },
+                    },
                   },
                 },
               }),
@@ -151,7 +195,7 @@ export async function POST(req: NextRequest) {
               },
               body: JSON.stringify({
                 to: fcmToken,
-                notification: { title: notificationTitle, body: notificationBody, icon: "/logo192.jpeg" },
+                notification: { title: notificationTitle, body: notificationBody, icon: "/logo192.jpeg", sound: "default" },
                 data: { url: notificationUrl, type: type || "chat" },
                 priority: "high",
               }),
