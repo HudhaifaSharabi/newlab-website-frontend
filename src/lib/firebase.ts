@@ -92,6 +92,44 @@ export async function listenForegroundNotifications(
   onNotificationReceived: (payload: any) => void
 ) {
   const messaging = await getFirebaseMessaging();
+// Helper to display native notification safely across Mobile Chrome/Android & Desktop
+export async function showNativeNotification(title: string, options: any = {}) {
+  if (typeof window === "undefined" || !("Notification" in window) || Notification.permission !== "granted") {
+    return;
+  }
+
+  const notificationOptions = {
+    icon: "/logo192.jpeg",
+    badge: "/logo192.jpeg",
+    vibrate: [200, 100, 200],
+    ...options,
+  };
+
+  // 1. Mobile Android/Chrome MUST use ServiceWorkerRegistration.showNotification()
+  try {
+    if ("serviceWorker" in navigator) {
+      const reg = await navigator.serviceWorker.ready;
+      if (reg && reg.showNotification) {
+        await reg.showNotification(title, notificationOptions);
+        return;
+      }
+    }
+  } catch (e) {
+    console.warn("[SW Notification Fallback]:", e);
+  }
+
+  // 2. Desktop Fallback for Chrome/Edge/Firefox
+  try {
+    new Notification(title, notificationOptions);
+  } catch (e) {
+    console.warn("[Window Notification Error]:", e);
+  }
+}
+
+export async function listenForegroundNotifications(
+  onNotificationReceived: (payload: any) => void
+) {
+  const messaging = await getFirebaseMessaging();
   if (!messaging) return () => {};
 
   return onMessage(messaging, (payload) => {
@@ -104,17 +142,14 @@ export async function listenForegroundNotifications(
       audio.play().catch(() => {});
     } catch {}
 
-    // Force native OS notification popup on screen even in foreground
+    // Force native OS notification popup on screen for both Mobile & Desktop
     try {
       const title = payload.notification?.title || payload.data?.title || "نيولاب - إشعار جديد";
       const body = payload.notification?.body || payload.data?.body || "";
-      if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
-        new Notification(title, {
-          body,
-          icon: payload.notification?.icon || payload.data?.icon || "/logo192.jpeg",
-          tag: "newlab-foreground-alert",
-        });
-      }
+      showNativeNotification(title, {
+        body,
+        tag: "newlab-foreground-alert",
+      });
     } catch {}
 
     onNotificationReceived(payload);
