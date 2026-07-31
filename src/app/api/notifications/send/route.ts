@@ -63,7 +63,6 @@ export async function POST(req: NextRequest) {
       if (targetTokens.length === 0 && targetPhone) {
         targetTokens = getUserFcmTokens(targetPhone);
       }
-      // Fallback: If exact user ID match didn't find tokens, send to all active tokens
       if (targetTokens.length === 0) {
         targetTokens = getAllFcmTokens();
       }
@@ -85,7 +84,7 @@ export async function POST(req: NextRequest) {
     let fcmResults: any[] = [];
     let methodUsed = "none";
 
-    // 2A. Check Service Account credentials (FCM HTTP v1 API - Recommended)
+    // 2A. Send via FCM HTTP v1 API with standard clean payload
     const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
     const privateKey = process.env.FIREBASE_PRIVATE_KEY;
     const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "new-lab-71268";
@@ -115,25 +114,11 @@ export async function POST(req: NextRequest) {
                     url: notificationUrl,
                     type: type || "chat",
                   },
-                  webpush: {
-                    headers: {
-                      Urgency: "high",
-                    },
-                    notification: {
-                      title: notificationTitle,
-                      body: notificationBody,
-                      icon: "/logo192.jpeg",
-                      badge: "/logo192.jpeg",
-                    },
-                    fcm_options: {
-                      link: notificationUrl,
-                    },
-                  },
                 },
               }),
             });
             const fcmJson = await fcmRes.json();
-            fcmResults.push({ token: fcmToken, result: fcmJson });
+            fcmResults.push({ token: fcmToken, response: fcmJson });
           } catch (e: any) {
             fcmResults.push({ token: fcmToken, error: e.message });
           }
@@ -166,7 +151,7 @@ export async function POST(req: NextRequest) {
               }),
             });
             const fcmJson = await fcmRes.json();
-            fcmResults.push({ token: fcmToken, result: fcmJson });
+            fcmResults.push({ token: fcmToken, response: fcmJson });
           } catch (e: any) {
             fcmResults.push({ token: fcmToken, error: e.message });
           }
