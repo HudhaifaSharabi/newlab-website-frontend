@@ -52,7 +52,9 @@ export async function requestNotificationPermission(userIdentifier?: string): Pr
     const registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js").catch(() => null);
 
     // Get FCM Registration Token
+    const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
     const token = await getToken(messaging, {
+      vapidKey: vapidKey || undefined,
       serviceWorkerRegistration: registration || undefined,
     });
 
