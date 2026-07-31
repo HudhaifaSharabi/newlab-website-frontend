@@ -294,15 +294,11 @@ export function PatientChatView({ role }: Props) {
     fetch("/api/chat-ping", { method: "POST", credentials: "include" }).catch(() => {});
 
     const interval = setInterval(() => {
-      if (!document.hidden) {
-        fetchMessages();
-      }
+      fetchMessages();
     }, 3500);
 
     const pingInterval = setInterval(() => {
-      if (!document.hidden) {
-        fetch("/api/chat-ping", { method: "POST", credentials: "include" }).catch(() => {});
-      }
+      fetch("/api/chat-ping", { method: "POST", credentials: "include" }).catch(() => {});
     }, 60000);
 
     return () => {

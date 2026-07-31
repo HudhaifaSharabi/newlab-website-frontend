@@ -370,28 +370,27 @@ const fetchMessages = useCallback(async (contactId : string) => {
     }
   }, []);
 
-  // Contacts poll every 8s + Presence heartbeat every 60s
+  // Contacts poll every 3.5s + Presence heartbeat every 60s
   useEffect(() => {
     fetchContacts(false); // التحميل الأولي (يُظهر الدائرة)
     fetch("/api/chat-ping", { method: "POST", credentials: "include" }).catch(() => {});
     
     const contactsInterval = setInterval(() => {
-      if (!document.hidden) {
-        fetchContacts(true); // التحديث الصامت (لا يُظهر الدائرة)
+      fetchContacts(true); // التحديث الصامت المستمر حتى عند تصغير الشاشة
+      if (activeContactRef.current?.id) {
+        fetchMessages(activeContactRef.current.id);
       }
     }, 3500);
 
     const pingInterval = setInterval(() => {
-      if (!document.hidden) {
-        fetch("/api/chat-ping", { method: "POST", credentials: "include" }).catch(() => {});
-      }
+      fetch("/api/chat-ping", { method: "POST", credentials: "include" }).catch(() => {});
     }, 60000);
 
     return () => {
       clearInterval(contactsInterval);
       clearInterval(pingInterval);
     };
-  }, [fetchContacts]);
+  }, [fetchContacts, fetchMessages]);
 
   // Messages fetch + poll — triggered only when active contact changes
   useEffect(() => {
