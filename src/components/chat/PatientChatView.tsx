@@ -313,6 +313,20 @@ export function PatientChatView({ role }: Props) {
           });
           const json = await res.json();
           const returnedMsg = json?.message?.data || json?.data;
+
+          // Trigger targeted FCM push notification to Lab Staff
+          fetch("/api/notifications/send", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              targetUser: "lab",
+              title: `رسالة جديدة من ${currentUserRef.current || "مريض/مركز"}`,
+              message: text,
+              url: "/ar/chat",
+              type: "chat"
+            })
+          }).catch(() => {});
+
           if (returnedMsg?.id) {
             setMessages(prev => prev.map(m => m.id === tempId ? {
               ...m,
