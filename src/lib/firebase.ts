@@ -1,81 +1,75 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getMessaging, getToken, onMessage, isSupported, Messaging } from "firebase/messaging";
+import { getMessaging, getToken, onMessage, isSupported } from "firebase/messaging";
+import { registerUserFcmToken } from "./fcmStore";
 
+// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyDH5tD6xfs7VUaKaH1IIl-hAmWPF50bFm8",
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "new-lab-71268.firebaseapp.com",
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "new-lab-71268",
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "new-lab-71268.firebasestorage.app",
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "333545583954",
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "1:333545583954:web:0fa508d28672585645f68b",
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID || "G-XS55CQPBZZ"
 };
 
-// Initialize Firebase Client App (Singleton)
-export const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+// Initialize Firebase App
+const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
-let messagingInstance: Messaging | null = null;
-
-// Initialize Messaging safely for browser environment
-export async function getFirebaseMessaging(): Promise<Messaging | null> {
+// Helper to safely get Firebase Messaging instance on client side
+export async function getFirebaseMessaging() {
   if (typeof window === "undefined") return null;
-  
-  if (!messagingInstance) {
-    const supported = await isSupported().catch(() => false);
-    if (supported) {
-      messagingInstance = getMessaging(app);
-    }
-  }
-  return messagingInstance;
+  const supported = await isSupported().catch(() => false);
+  if (!supported) return null;
+  return getMessaging(app);
 }
 
-// Request Notification Permission and register FCM Token for specific user
-export async function requestNotificationPermission(userIdentifier?: string): Promise<string | null> {
+// Request Notification Permission and register device FCM Token
+export async function requestNotificationPermission(userIdentifier?: string) {
   if (typeof window === "undefined" || !("Notification" in window)) {
-    console.warn("Notifications not supported in this browser environment.");
     return null;
   }
 
   try {
     const permission = await Notification.requestPermission();
-    if (permission !== "granted") {
-      console.warn("Notification permission denied by user.");
-      return null;
-    }
+    if (permission === "granted") {
+      const messaging = await getFirebaseMessaging();
+      if (!messaging) return null;
 
-    const messaging = await getFirebaseMessaging();
-    if (!messaging) {
-      console.warn("Firebase Messaging not supported on this browser.");
-      return null;
-    }
+      // Register Firebase Service Worker first if not registered
+      let swRegistration: ServiceWorkerRegistration | undefined = undefined;
+      if ("serviceWorker" in navigator) {
+        try {
+          swRegistration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+        } catch (swErr) {
+          console.warn("[FCM SW Registration Warning]:", swErr);
+        }
+      }
 
-    // Register Service Worker for FCM Web Push
-    const registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js").catch(() => null);
+      const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY || undefined;
 
-    // Get FCM Registration Token
-    const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
-    const token = await getToken(messaging, {
-      vapidKey: vapidKey || undefined,
-      serviceWorkerRegistration: registration || undefined,
-    });
+      const token = await getToken(messaging, {
+        vapidKey,
+        serviceWorkerRegistration: swRegistration,
+      });
 
-    if (token) {
       console.log("=== [FCM] FCM Token generated successfully ===", token);
-      
-      // Store token locally
-      try {
-        localStorage.setItem("newlab_fcm_token", token);
-      } catch {}
 
-      // Register Token to backend for specific user targeting
-      if (userIdentifier) {
-        await fetch("/api/notifications/register-token", {
+      if (token && userIdentifier) {
+        fetch("/api/notifications/register-token", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ token, userIdentifier }),
         })
-        .then(r => r.json())
-        .then(resData => console.log(`=== [FCM Register Token Response for ${userIdentifier}] ===`, resData))
-        .catch((e) => console.error("Failed to register FCM token with server:", e));
+        .then(res => res.json())
+        .then(data => console.log(`=== [FCM Register Token Response for ${userIdentifier}] ===`, data))
+        .catch(err => console.error("=== [FCM Register Token Error] ===", err));
+      }
+
+      if (typeof window !== "undefined" && token) {
+        try {
+          localStorage.setItem("newlab_fcm_token", token);
+        } catch {}
       }
 
       return token;
@@ -87,11 +81,6 @@ export async function requestNotificationPermission(userIdentifier?: string): Pr
   return null;
 }
 
-// Listen for Foreground (In-App) Notifications when user is actively using the app
-export async function listenForegroundNotifications(
-  onNotificationReceived: (payload: any) => void
-) {
-  const messaging = await getFirebaseMessaging();
 // Helper to display native notification safely across Mobile Chrome/Android & Desktop
 export async function showNativeNotification(title: string, options: any = {}) {
   if (typeof window === "undefined" || !("Notification" in window) || Notification.permission !== "granted") {
@@ -126,6 +115,7 @@ export async function showNativeNotification(title: string, options: any = {}) {
   }
 }
 
+// Listen for Foreground (In-App) Notifications when user is actively using the app
 export async function listenForegroundNotifications(
   onNotificationReceived: (payload: any) => void
 ) {
