@@ -81,7 +81,7 @@ export async function requestNotificationPermission(userIdentifier?: string) {
   return null;
 }
 
-// Helper to display native notification safely across Mobile Chrome/Android & Desktop
+// Helper to display native notification safely across Mobile Chrome/Android & Desktop (Non-blocking)
 export async function showNativeNotification(title: string, options: any = {}) {
   if (typeof window === "undefined" || !("Notification" in window) || Notification.permission !== "granted") {
     return;
@@ -94,24 +94,32 @@ export async function showNativeNotification(title: string, options: any = {}) {
     ...options,
   };
 
-  // 1. Mobile Android/Chrome MUST use ServiceWorkerRegistration.showNotification()
+  let shown = false;
+
+  // 1. Try ServiceWorkerRegistration if active (with 400ms non-blocking timeout)
   try {
     if ("serviceWorker" in navigator) {
-      const reg = await navigator.serviceWorker.ready;
+      const reg = await Promise.race([
+        navigator.serviceWorker.getRegistration("/firebase-messaging-sw.js"),
+        navigator.serviceWorker.getRegistration(),
+        new Promise<undefined>((res) => setTimeout(() => res(undefined), 400)),
+      ]);
       if (reg && reg.showNotification) {
         await reg.showNotification(title, notificationOptions);
-        return;
+        shown = true;
       }
     }
   } catch (e) {
     console.warn("[SW Notification Fallback]:", e);
   }
 
-  // 2. Desktop Fallback for Chrome/Edge/Firefox
-  try {
-    new Notification(title, notificationOptions);
-  } catch (e) {
-    console.warn("[Window Notification Error]:", e);
+  // 2. Instant Fallback for Desktop/Mobile if SW is not ready
+  if (!shown) {
+    try {
+      new Notification(title, notificationOptions);
+    } catch (e) {
+      console.warn("[Window Notification Error]:", e);
+    }
   }
 }
 
