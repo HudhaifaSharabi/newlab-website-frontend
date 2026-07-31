@@ -400,11 +400,13 @@ const fetchMessages = useCallback(async (contactId : string) => {
     return () => clearInterval(interval);
   }, [activeContact?.id, fetchMessages]);
 
-  // Register FCM Notification Token for Lab Staff
+  // Register FCM Notification Token for Lab Staff under all identifiers
   useEffect(() => {
     import("@/lib/firebase").then(({ requestNotificationPermission, listenForegroundNotifications }) => {
       requestNotificationPermission("lab");
+      requestNotificationPermission("Administrator");
       requestNotificationPermission("administrator");
+      requestNotificationPermission("المختبر الرئيسي");
 
       listenForegroundNotifications((payload) => {
         const title = payload.notification?.title || payload.data?.title || "رسالة جديدة من مريض";

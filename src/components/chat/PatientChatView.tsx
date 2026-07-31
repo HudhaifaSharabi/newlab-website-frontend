@@ -76,9 +76,19 @@ export function PatientChatView({ role }: Props) {
 
         currentUserRef.current = currentUser;
 
-        // Register FCM Notification Token for patient chat alerts
+        // Register FCM Notification Token for patient chat alerts under all identifiers
         import("@/lib/firebase").then(({ requestNotificationPermission }) => {
           requestNotificationPermission(currentUser);
+          requestNotificationPermission("center");
+          requestNotificationPermission("patient");
+          try {
+            const rawUser = localStorage.getItem("portal_user_v2");
+            if (rawUser) {
+              const u = JSON.parse(rawUser);
+              if (u.phone) requestNotificationPermission(u.phone);
+              if (u.name) requestNotificationPermission(u.name);
+            }
+          } catch {}
         }).catch(() => {});
 
         // If a different user is now logged in, wipe ALL cached messages
