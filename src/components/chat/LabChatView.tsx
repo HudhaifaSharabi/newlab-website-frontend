@@ -235,6 +235,22 @@ const fetchContacts = useCallback(async (isPolling = false) => {
         mapped.sort((a, b) => (b.rawTimestamp || 0) - (a.rawTimestamp || 0) || (a.backendIndex - b.backendIndex));
 
         setContacts(prev => {
+          if (prev.length > 0) {
+            const prevUnreadMap = new Map(prev.map(c => [c.id, c.unread || 0]));
+            const newUnreadContact = mapped.find(c => (c.unread || 0) > (prevUnreadMap.get(c.id) || 0));
+            if (newUnreadContact) {
+              if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+                try {
+                  new Notification(`💬 رسالة جديدة من ${newUnreadContact.name}`, {
+                    body: newUnreadContact.lastMessage || "وصلتك رسالة جديدة في الشات",
+                    icon: "/logo192.jpeg",
+                    tag: `lab-contact-msg-${newUnreadContact.id}`,
+                  });
+                } catch {}
+              }
+            }
+          }
+
           const isChanged = JSON.stringify(prev) !== JSON.stringify(mapped);
           if (isChanged) {
             try { localStorage.setItem(CONTACTS_CACHE_KEY, JSON.stringify(mapped)); } catch {}

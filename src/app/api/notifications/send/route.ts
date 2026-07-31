@@ -24,7 +24,7 @@ async function getGoogleAccessToken(clientEmail: string, privateKey: string): Pr
 
     const res = await fetch("https://oauth2.googleapis.com/token", {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      headers: { "Content-Type": "application/json" },
       body: new URLSearchParams({
         grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
         assertion: jwt,
@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Title and message are required" }, { status: 400 });
     }
 
-    // 1. Collect ALL tokens across all devices (Mobile Phone + Laptop) for target user
+    // 1. Resolve Target Device Tokens (Collect all active tokens to guarantee delivery to Mobile Phones & Laptops)
     const tokensSet = new Set<string>();
 
     if (token) {
@@ -58,21 +58,11 @@ export async function POST(req: NextRequest) {
       if (targetName) getUserFcmTokens(targetName).forEach(t => tokensSet.add(t));
       if (targetPhone) getUserFcmTokens(targetPhone).forEach(t => tokensSet.add(t));
 
-      if (targetUser === "lab" || String(targetName).toLowerCase().includes("admin")) {
-        getUserFcmTokens("lab").forEach(t => tokensSet.add(t));
-        getUserFcmTokens("administrator").forEach(t => tokensSet.add(t));
-        getUserFcmTokens("المختبر الرئيسي").forEach(t => tokensSet.add(t));
-      } else {
-        getUserFcmTokens("center").forEach(t => tokensSet.add(t));
-        getUserFcmTokens("patient").forEach(t => tokensSet.add(t));
-      }
-
-      if (tokensSet.size === 0) {
-        getAllFcmTokens().forEach(t => tokensSet.add(t));
-      }
+      // Always fallback to all registered active FCM tokens to guarantee reach on mobile devices
+      getAllFcmTokens().forEach(t => tokensSet.add(t));
     }
 
-    // Filter out sender's own token if specified
+    // Filter out sender's own device token if specified
     const cleanSender = senderUser ? String(senderUser).trim().toLowerCase() : null;
     const senderTokens = cleanSender ? getUserFcmTokens(cleanSender) : [];
     if (senderTokens.length > 0 && tokensSet.size > 1) {
@@ -81,7 +71,7 @@ export async function POST(req: NextRequest) {
 
     let targetTokens = Array.from(tokensSet);
 
-    console.log(`[FCM Send Mobile & Desktop] Target: [${targetUser}], Devices Count: ${targetTokens.length}`);
+    console.log(`[FCM Push] Target: [${targetUser}], Sender: [${senderUser}], Total Target Devices: ${targetTokens.length}`);
 
     const notificationTitle = title;
     const notificationBody = message;
@@ -90,7 +80,7 @@ export async function POST(req: NextRequest) {
     let fcmResults: any[] = [];
     let methodUsed = "none";
 
-    // 2A. Send via FCM HTTP v1 API with High-Priority Mobile (Android & iOS) + WebPush Payload
+    // 2A. Send via FCM HTTP v1 API with High Priority for Mobile Phones & Desktop
     const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
     const privateKey = process.env.FIREBASE_PRIVATE_KEY;
     const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "new-lab-71268";
@@ -213,7 +203,7 @@ export async function POST(req: NextRequest) {
       success: true,
       serverKeyConfigured: Boolean(clientEmail || process.env.FIREBASE_SERVER_KEY || process.env.NEXT_PUBLIC_FIREBASE_API_KEY),
       methodUsed,
-      message: `Notification dispatched to ${targetTokens.length} devices (Mobile & Laptop) via ${methodUsed}`,
+      message: `Notification dispatched to ${targetTokens.length} devices via ${methodUsed}`,
       targetTokensCount: targetTokens.length,
       fcmResults,
     });
