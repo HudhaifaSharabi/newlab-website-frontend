@@ -344,6 +344,21 @@ const fetchMessages = useCallback(async (contactId : string) => {
       
       const uniqueMessages = Array.from(messageMap.values());
       uniqueMessages.sort((a, b) => (a.rawTimestamp || 0) - (b.rawTimestamp || 0));
+
+      // Trigger screen Notification popup for new incoming messages from clients
+      if (prev.length > 0) {
+        const prevIds = new Set(prev.map(m => m.id));
+        const newIncoming = uniqueMessages.find(m => !m.isOutgoing && !prevIds.has(m.id));
+        if (newIncoming && typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+          try {
+            new Notification(`💬 رسالة جديدة من ${activeContactRef.current?.name || "مريض"}`, {
+              body: newIncoming.text || "وصلتك رسالة جديدة في المحادثة",
+              icon: "/logo192.jpeg",
+              tag: `lab-msg-${newIncoming.id}`,
+            });
+          } catch {}
+        }
+      }
       
       saveCachedMessages(contactId, uniqueMessages);
       return uniqueMessages;
