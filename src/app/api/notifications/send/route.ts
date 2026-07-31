@@ -16,15 +16,12 @@ export async function POST(req: NextRequest) {
     if (token) {
       targetTokens = [token];
     } else {
-      // Search by targetUser ID
       if (targetUser) {
         targetTokens = getUserFcmTokens(targetUser);
       }
-      // Search by targetName
       if (targetTokens.length === 0 && targetName) {
         targetTokens = getUserFcmTokens(targetName);
       }
-      // Search by targetPhone
       if (targetTokens.length === 0 && targetPhone) {
         targetTokens = getUserFcmTokens(targetPhone);
       }
@@ -57,42 +54,55 @@ export async function POST(req: NextRequest) {
       },
     };
 
-    // 2. Obtain FCM Server Key
-    const serverKey = process.env.FIREBASE_SERVER_KEY;
-    
+    // 2. Obtain FCM Server Key (check all possible env variable names)
+    const serverKey =
+      process.env.FIREBASE_SERVER_KEY ||
+      process.env.NEXT_PUBLIC_FIREBASE_SERVER_KEY ||
+      process.env.FIREBASE_SERVER_API_KEY;
+
     let fcmResults = [];
-    if (serverKey && targetTokens.length > 0) {
-      for (const fcmToken of targetTokens) {
-        try {
-          const fcmRes = await fetch("https://fcm.googleapis.com/fcm/send", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `key=${serverKey}`,
-            },
-            body: JSON.stringify({
-              to: fcmToken,
-              notification: payload.notification,
-              data: payload.data,
-              priority: "high",
-            }),
-          });
-          const fcmJson = await fcmRes.json();
-          fcmResults.push({ token: fcmToken, result: fcmJson });
-        } catch (e: any) {
-          console.error(`[FCM Send Error] Token ${fcmToken}:`, e);
-          fcmResults.push({ token: fcmToken, error: e.message });
+    let fcmErrorDetails = null;
+
+    if (targetTokens.length > 0) {
+      if (serverKey) {
+        for (const fcmToken of targetTokens) {
+          try {
+            const fcmRes = await fetch("https://fcm.googleapis.com/fcm/send", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `key=${serverKey}`,
+              },
+              body: JSON.stringify({
+                to: fcmToken,
+                notification: payload.notification,
+                data: payload.data,
+                priority: "high",
+              }),
+            });
+            const fcmJson = await fcmRes.json();
+            fcmResults.push({ token: fcmToken, result: fcmJson });
+          } catch (e: any) {
+            console.error(`[FCM Send Error] Token ${fcmToken}:`, e);
+            fcmResults.push({ token: fcmToken, error: e.message });
+          }
         }
+      } else {
+        fcmErrorDetails = "SERVER_KEY_MISSING: Please add FIREBASE_SERVER_KEY or NEXT_PUBLIC_FIREBASE_SERVER_KEY to Vercel Environment Variables.";
       }
     }
 
     return NextResponse.json({
       success: true,
       serverKeyConfigured: Boolean(serverKey),
-      message: `Notification dispatched to ${targetTokens.length} devices`,
+      serverKeyPrefix: serverKey ? `${serverKey.substring(0, 6)}...` : null,
+      message: serverKey
+        ? `Notification dispatched to ${targetTokens.length} devices`
+        : "FIREBASE_SERVER_KEY is missing in Vercel Environment Variables. Please add FIREBASE_SERVER_KEY to Vercel.",
       targetTokensCount: targetTokens.length,
       payload,
       fcmResults,
+      fcmErrorDetails,
     });
   } catch (error: any) {
     console.error("[FCM Send Error]:", error);
