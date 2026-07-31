@@ -327,7 +327,10 @@ export function PatientChatView({ role }: Props) {
               url: "/ar/chat",
               type: "chat"
             })
-          }).catch(() => {});
+          })
+          .then(r => r.json())
+          .then(data => console.log("=== [FCM Debug Patient Send Response] ===", data))
+          .catch(e => console.error("=== [FCM Debug Patient Send Error] ===", e));
 
           if (returnedMsg?.id) {
             setMessages(prev => prev.map(m => m.id === tempId ? {

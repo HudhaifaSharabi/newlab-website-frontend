@@ -547,7 +547,10 @@ const markMessagesRead = (contactId: string) => {
               url: "/ar/chat",
               type: "chat"
             })
-          }).catch(() => {});
+          })
+          .then(r => r.json())
+          .then(data => console.log("=== [FCM Debug Lab Send Response] ===", data))
+          .catch(e => console.error("=== [FCM Debug Lab Send Error] ===", e));
 
           if (returnedMsg?.id) {
             const realId = String(returnedMsg.id);

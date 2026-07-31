@@ -72,7 +72,10 @@ export async function requestNotificationPermission(userIdentifier?: string): Pr
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ token, userIdentifier }),
-        }).catch((e) => console.error("Failed to register FCM token with server:", e));
+        })
+        .then(r => r.json())
+        .then(resData => console.log(`=== [FCM Register Token Response for ${userIdentifier}] ===`, resData))
+        .catch((e) => console.error("Failed to register FCM token with server:", e));
       }
 
       return token;
