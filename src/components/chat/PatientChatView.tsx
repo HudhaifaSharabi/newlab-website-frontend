@@ -251,13 +251,14 @@ export function PatientChatView({ role }: Props) {
           if (prev.length > 0) {
             const prevIds = new Set(prev.map(m => m.id));
             const newIncoming = updated.find(m => !m.isOutgoing && !prevIds.has(m.id));
-            if (newIncoming) {
-              import("@/lib/firebase").then(({ showNativeNotification }) => {
-                showNativeNotification("💬 رسالة جديدة من المختبر", {
+            if (newIncoming && typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+              try {
+                new Notification("💬 رسالة جديدة من المختبر", {
                   body: newIncoming.text || "وصلتك رسالة جديدة من المختبر الرئيسي",
+                  icon: "/logo192.jpeg",
                   tag: `patient-msg-${newIncoming.id}`,
                 });
-              }).catch(() => {});
+              } catch {}
             }
           }
 
