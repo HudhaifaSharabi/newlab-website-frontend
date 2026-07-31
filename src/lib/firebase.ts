@@ -1,6 +1,5 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getMessaging, getToken, onMessage, isSupported } from "firebase/messaging";
-import { registerUserFcmToken } from "./fcmStore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -36,11 +35,12 @@ export async function requestNotificationPermission(userIdentifier?: string) {
       const messaging = await getFirebaseMessaging();
       if (!messaging) return null;
 
-      // Register Firebase Service Worker first if not registered
+      // Register Firebase Service Worker first and await ready state for Mobile Devices
       let swRegistration: ServiceWorkerRegistration | undefined = undefined;
       if ("serviceWorker" in navigator) {
         try {
           swRegistration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+          await navigator.serviceWorker.ready;
         } catch (swErr) {
           console.warn("[FCM SW Registration Warning]:", swErr);
         }
@@ -53,7 +53,7 @@ export async function requestNotificationPermission(userIdentifier?: string) {
         serviceWorkerRegistration: swRegistration,
       });
 
-      console.log("=== [FCM] FCM Token generated successfully ===", token);
+      console.log("=== [FCM Mobile & Desktop] FCM Token generated successfully ===", token);
 
       if (token && userIdentifier) {
         fetch("/api/notifications/register-token", {
