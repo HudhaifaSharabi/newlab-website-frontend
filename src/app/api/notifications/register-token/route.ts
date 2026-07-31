@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-
-// In-Memory / Global Cache for user FCM tokens (User -> Tokens Array)
-// In production, this can also sync with backend API or DB table
-const tokenStore = new Map<string, Set<string>>();
+import { registerUserFcmToken } from "@/lib/fcmStore";
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,14 +11,7 @@ export async function POST(req: NextRequest) {
     }
 
     const cleanUser = String(userIdentifier).trim().toLowerCase();
-    
-    if (!tokenStore.has(cleanUser)) {
-      tokenStore.set(cleanUser, new Set());
-    }
-
-    tokenStore.get(cleanUser)?.add(token);
-
-    console.log(`[FCM Store] Registered FCM Token for user [${cleanUser}]:`, token);
+    registerUserFcmToken(cleanUser, token);
 
     // Sync token with backend API if configured
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -41,10 +31,4 @@ export async function POST(req: NextRequest) {
     console.error("[FCM Register Error]:", error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
-}
-
-function getUserTokens(userIdentifier: string): string[] {
-  const cleanUser = String(userIdentifier).trim().toLowerCase();
-  const tokensSet = tokenStore.get(cleanUser);
-  return tokensSet ? Array.from(tokensSet) : [];
 }

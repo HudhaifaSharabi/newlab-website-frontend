@@ -399,6 +399,20 @@ const fetchMessages = useCallback(async (contactId : string) => {
 
     return () => clearInterval(interval);
   }, [activeContact?.id, fetchMessages]);
+
+  // Register FCM Notification Token for Lab Staff
+  useEffect(() => {
+    import("@/lib/firebase").then(({ requestNotificationPermission, listenForegroundNotifications }) => {
+      requestNotificationPermission("lab");
+      requestNotificationPermission("administrator");
+
+      listenForegroundNotifications((payload) => {
+        const title = payload.notification?.title || payload.data?.title || "رسالة جديدة من مريض";
+        const body = payload.notification?.body || payload.data?.body || "";
+        console.log("🔔 [FCM Lab Foreground Alert]:", title, body);
+      });
+    }).catch(() => {});
+  }, []);
 const markMessagesRead = (contactId: string) => {
     setMessages(prev => {
       if (activeContactRef.current?.id !== contactId) return prev;

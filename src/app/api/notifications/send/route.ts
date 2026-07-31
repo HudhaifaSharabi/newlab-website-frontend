@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getUserFcmTokens, getAllFcmTokens } from "@/lib/fcmStore";
 
 export async function POST(req: NextRequest) {
   try {
@@ -8,6 +9,20 @@ export async function POST(req: NextRequest) {
     if (!title || !message) {
       return NextResponse.json({ success: false, error: "Title and message are required" }, { status: 400 });
     }
+
+    // 1. Resolve Target Tokens
+    let targetTokens: string[] = [];
+    if (token) {
+      targetTokens = [token];
+    } else if (targetUser) {
+      targetTokens = getUserFcmTokens(targetUser);
+      // Fallback: If no specific tokens registered for this exact user ID, broadcast to active tokens
+      if (targetTokens.length === 0) {
+        targetTokens = getAllFcmTokens();
+      }
+    }
+
+    console.log(`[FCM Send] Target User: [${targetUser}], Target Tokens Count: ${targetTokens.length}`);
 
     const payload = {
       notification: {
@@ -23,19 +38,40 @@ export async function POST(req: NextRequest) {
       },
     };
 
-    console.log(`[FCM Send] Target User: [${targetUser}], Notification: "${title}" - "${message}"`);
-
-    // Broadcast or specific FCM send helper
-    // If specific token passed:
-    if (token) {
-      // Send to specific device token
-      console.log(`[FCM Send] Directing push to device token: ${token}`);
+    // 2. If Firebase Server Key is available in env, send to FCM Cloud API
+    const serverKey = process.env.FIREBASE_SERVER_KEY || process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+    
+    let fcmResults = [];
+    if (serverKey && targetTokens.length > 0) {
+      for (const fcmToken of targetTokens) {
+        try {
+          const fcmRes = await fetch("https://fcm.googleapis.com/fcm/send", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `key=${serverKey}`,
+            },
+            body: JSON.stringify({
+              to: fcmToken,
+              notification: payload.notification,
+              data: payload.data,
+              priority: "high",
+            }),
+          });
+          const fcmJson = await fcmRes.json();
+          fcmResults.push({ token: fcmToken, result: fcmJson });
+        } catch (e: any) {
+          console.error(`[FCM Send Error] Token ${fcmToken}:`, e);
+        }
+      }
     }
 
     return NextResponse.json({
       success: true,
-      message: `Notification queued for ${targetUser || "user"}`,
+      message: `Notification dispatched to ${targetTokens.length} devices`,
+      targetTokensCount: targetTokens.length,
       payload,
+      fcmResults,
     });
   } catch (error: any) {
     console.error("[FCM Send Error]:", error);
