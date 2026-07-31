@@ -266,7 +266,6 @@ function ChatPageContent() {
           )}
         </div>
       </header>
-      <NotificationBanner userIdentifier={role || undefined} />
 
       {/* Main Content Area */}
       <div className="flex-1 overflow-hidden flex w-full">

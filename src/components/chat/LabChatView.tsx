@@ -504,14 +504,18 @@ const markMessagesRead = (contactId: string) => {
     chatEndRef.current?.scrollIntoView({ behavior: smooth ? "smooth" : "auto" });
   };
 
+  const prevMessagesLengthRef = useRef(0);
   useEffect(() => {
     if (showMobileChat || activeContact) {
       const contactChanged = lastScrollContactIdRef.current !== activeContact?.id;
+      const isNewMsg = messages.length > prevMessagesLengthRef.current;
+      prevMessagesLengthRef.current = messages.length;
+
       if (contactChanged) {
         lastScrollContactIdRef.current = activeContact?.id || null;
         isNearBottomRef.current = true;
         scrollToBottom(false);
-      } else if (isNearBottomRef.current) {
+      } else if (isNewMsg && isNearBottomRef.current) {
         scrollToBottom(true);
       }
     }

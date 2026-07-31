@@ -139,8 +139,12 @@ export function PatientChatView({ role }: Props) {
     chatEndRef.current?.scrollIntoView({ behavior: smooth ? "smooth" : "auto" });
   };
 
+  const prevMsgLengthRef = useRef(0);
   useEffect(() => {
-    if (isNearBottomRef.current) {
+    const isNewMsg = messages.length > prevMsgLengthRef.current;
+    prevMsgLengthRef.current = messages.length;
+
+    if (isNewMsg && isNearBottomRef.current) {
       scrollToBottom(true);
     }
   }, [messages]);
@@ -393,7 +397,6 @@ export function PatientChatView({ role }: Props) {
       className="flex flex-col h-full w-full bg-slate-50 dark:bg-slate-950 overflow-hidden relative" 
       dir="rtl"
     >
-      <NotificationBanner userIdentifier={currentUserRef.current} />
       {!isOnline && (
         <div className="bg-amber-500 text-white px-4 py-1.5 text-center text-xs font-bold flex items-center justify-center gap-2 z-[100]">
           <AlertCircle className="w-3.5 h-3.5" />

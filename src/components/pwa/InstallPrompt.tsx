@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Download, CheckCircle, Smartphone, Monitor, X, Share } from 'lucide-react';
 
 export default function InstallPrompt({
@@ -43,17 +44,24 @@ export default function InstallPrompt({
     };
   }, []);
 
-  const handleInstallClick = async () => {
-    if (onCloseMenu) onCloseMenu();
+  const handleInstallClick = async (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
 
     if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
-        setDeferredPrompt(null);
+      try {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          setDeferredPrompt(null);
+        }
+      } catch (err) {
+        setShowModal(true);
       }
+      if (onCloseMenu) onCloseMenu();
     } else {
-      // Show instructions modal for iOS or manual browsers
       setShowModal(true);
     }
   };
@@ -107,8 +115,8 @@ export default function InstallPrompt({
       )}
 
       {/* Manual Install Instructions Modal for iOS / Laptop / Unsupported browsers */}
-      {showModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in" dir="rtl">
+      {showModal && typeof window !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in" dir="rtl">
           <div className="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl text-slate-100 flex flex-col space-y-5">
             <button
               onClick={() => setShowModal(false)}
@@ -162,7 +170,8 @@ export default function InstallPrompt({
               فهمت ذلك
             </button>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

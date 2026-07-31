@@ -487,7 +487,6 @@ export function PortalDashboard({ onLogout, userName, userPhone, userType }: Por
 
   return (
     <div dir="rtl" className="min-h-screen bg-slate-50 dark:bg-slate-900 font-sans">
-      <NotificationBanner userIdentifier={userPhone || userName} />
       {!isOnline && (
         <div className="bg-amber-500 text-white px-4 py-2 text-center text-sm font-bold flex items-center justify-center gap-2 z-50 relative">
           <AlertCircle className="w-4 h-4" />

@@ -48,34 +48,40 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Title and message are required" }, { status: 400 });
     }
 
-    // 1. Resolve Target Tokens with multi-identifier matching
-    let targetTokens: string[] = [];
+    // 1. Collect ALL tokens across all devices (Mobile Phone + Laptop) for target user
+    const tokensSet = new Set<string>();
 
     if (token) {
-      targetTokens = [token];
+      tokensSet.add(token);
     } else {
-      if (targetUser) {
-        targetTokens = getUserFcmTokens(targetUser);
+      if (targetUser) getUserFcmTokens(targetUser).forEach(t => tokensSet.add(t));
+      if (targetName) getUserFcmTokens(targetName).forEach(t => tokensSet.add(t));
+      if (targetPhone) getUserFcmTokens(targetPhone).forEach(t => tokensSet.add(t));
+
+      if (targetUser === "lab" || String(targetName).toLowerCase().includes("admin")) {
+        getUserFcmTokens("lab").forEach(t => tokensSet.add(t));
+        getUserFcmTokens("administrator").forEach(t => tokensSet.add(t));
+        getUserFcmTokens("المختبر الرئيسي").forEach(t => tokensSet.add(t));
+      } else {
+        getUserFcmTokens("center").forEach(t => tokensSet.add(t));
+        getUserFcmTokens("patient").forEach(t => tokensSet.add(t));
       }
-      if (targetTokens.length === 0 && targetName) {
-        targetTokens = getUserFcmTokens(targetName);
-      }
-      if (targetTokens.length === 0 && targetPhone) {
-        targetTokens = getUserFcmTokens(targetPhone);
-      }
-      if (targetTokens.length === 0) {
-        targetTokens = getAllFcmTokens();
+
+      if (tokensSet.size === 0) {
+        getAllFcmTokens().forEach(t => tokensSet.add(t));
       }
     }
 
-    // Filter out sender's own token if sender token is specified
+    // Filter out sender's own token if specified
     const cleanSender = senderUser ? String(senderUser).trim().toLowerCase() : null;
     const senderTokens = cleanSender ? getUserFcmTokens(cleanSender) : [];
-    if (senderTokens.length > 0 && targetTokens.length > 1) {
-      targetTokens = targetTokens.filter((t) => !senderTokens.includes(t));
+    if (senderTokens.length > 0 && tokensSet.size > 1) {
+      senderTokens.forEach(st => tokensSet.delete(st));
     }
 
-    console.log(`[FCM Send] Target User: [${targetUser}], Sender: [${senderUser}], Resolved Tokens Count: ${targetTokens.length}`);
+    let targetTokens = Array.from(tokensSet);
+
+    console.log(`[FCM Send Multi-Device] Target: [${targetUser}], Devices Count: ${targetTokens.length}`);
 
     const notificationTitle = title;
     const notificationBody = message;
@@ -84,7 +90,7 @@ export async function POST(req: NextRequest) {
     let fcmResults: any[] = [];
     let methodUsed = "none";
 
-    // 2A. Send via FCM HTTP v1 API with standard clean payload
+    // 2A. Send via FCM HTTP v1 API
     const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
     const privateKey = process.env.FIREBASE_PRIVATE_KEY;
     const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "new-lab-71268";
@@ -163,7 +169,7 @@ export async function POST(req: NextRequest) {
       success: true,
       serverKeyConfigured: Boolean(clientEmail || process.env.FIREBASE_SERVER_KEY || process.env.NEXT_PUBLIC_FIREBASE_API_KEY),
       methodUsed,
-      message: `Notification dispatched to ${targetTokens.length} devices via ${methodUsed}`,
+      message: `Notification dispatched to ${targetTokens.length} devices (Mobile & Laptop) via ${methodUsed}`,
       targetTokensCount: targetTokens.length,
       fcmResults,
     });
