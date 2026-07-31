@@ -1,5 +1,43 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getUserFcmTokens, getAllFcmTokens } from "@/lib/fcmStore";
+import crypto from "crypto";
+
+// Helper to generate Google OAuth2 Access Token using Service Account credentials
+async function getGoogleAccessToken(clientEmail: string, privateKey: string): Promise<string | null> {
+  try {
+    const cleanKey = privateKey.replace(/\\n/g, "\n");
+    const header = Buffer.from(JSON.stringify({ alg: "RS256", typ: "JWT" })).toString("base64url");
+    const now = Math.floor(Date.now() / 1000);
+    const claimSet = Buffer.from(JSON.stringify({
+      iss: clientEmail,
+      scope: "https://www.googleapis.com/auth/firebase.messaging",
+      aud: "https://oauth2.googleapis.com/token",
+      exp: now + 3600,
+      iat: now,
+    })).toString("base64url");
+
+    const signatureInput = `${header}.${claimSet}`;
+    const signer = crypto.createSign("RSA-SHA256");
+    signer.update(signatureInput);
+    const signature = signer.sign(cleanKey, "base64url");
+    const jwt = `${signatureInput}.${signature}`;
+
+    const res = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+        assertion: jwt,
+      }),
+    });
+
+    const data = await res.json();
+    return data.access_token || null;
+  } catch (e: any) {
+    console.error("[Google OAuth Token Error]:", e);
+    return null;
+  }
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -40,62 +78,106 @@ export async function POST(req: NextRequest) {
 
     console.log(`[FCM Send] Target User: [${targetUser}], Sender: [${senderUser}], Resolved Tokens Count: ${targetTokens.length}`);
 
-    const payload = {
-      notification: {
-        title,
-        body: message,
-        icon: "/logo192.jpeg",
-      },
-      data: {
-        url: url || "/ar/chat",
-        type: type || "general",
-        targetUser: targetUser || "",
-        timestamp: new Date().toISOString(),
-      },
-    };
+    const notificationTitle = title;
+    const notificationBody = message;
+    const notificationUrl = url || "/ar/chat";
 
-    // 2. Obtain FCM Server Key (auto-fallback to NEXT_PUBLIC_FIREBASE_API_KEY if not specified)
-    const serverKey =
-      process.env.FIREBASE_SERVER_KEY ||
-      process.env.NEXT_PUBLIC_FIREBASE_SERVER_KEY ||
-      process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+    let fcmResults: any[] = [];
+    let methodUsed = "none";
 
-    let fcmResults = [];
+    // 2A. Check Service Account credentials (FCM HTTP v1 API - Recommended)
+    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+    const privateKey = process.env.FIREBASE_PRIVATE_KEY;
+    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "new-lab-71268";
 
-    if (targetTokens.length > 0 && serverKey) {
-      for (const fcmToken of targetTokens) {
-        try {
-          const fcmRes = await fetch("https://fcm.googleapis.com/fcm/send", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `key=${serverKey}`,
-            },
-            body: JSON.stringify({
-              to: fcmToken,
-              notification: payload.notification,
-              data: payload.data,
-              priority: "high",
-            }),
-          });
-          const fcmJson = await fcmRes.json();
-          fcmResults.push({ token: fcmToken, result: fcmJson });
-        } catch (e: any) {
-          console.error(`[FCM Send Error] Token ${fcmToken}:`, e);
-          fcmResults.push({ token: fcmToken, error: e.message });
+    if (clientEmail && privateKey && targetTokens.length > 0) {
+      const accessToken = await getGoogleAccessToken(clientEmail, privateKey);
+      if (accessToken) {
+        methodUsed = "fcm_v1_service_account";
+        for (const fcmToken of targetTokens) {
+          try {
+            const fcmRes = await fetch(`https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${accessToken}`,
+              },
+              body: JSON.stringify({
+                message: {
+                  token: fcmToken,
+                  notification: {
+                    title: notificationTitle,
+                    body: notificationBody,
+                  },
+                  data: {
+                    url: notificationUrl,
+                    type: type || "chat",
+                  },
+                  webpush: {
+                    headers: {
+                      Urgency: "high",
+                    },
+                    notification: {
+                      title: notificationTitle,
+                      body: notificationBody,
+                      icon: "/logo192.jpeg",
+                      badge: "/logo192.jpeg",
+                    },
+                    fcm_options: {
+                      link: notificationUrl,
+                    },
+                  },
+                },
+              }),
+            });
+            const fcmJson = await fcmRes.json();
+            fcmResults.push({ token: fcmToken, result: fcmJson });
+          } catch (e: any) {
+            fcmResults.push({ token: fcmToken, error: e.message });
+          }
+        }
+      }
+    }
+
+    // 2B. Fallback to Legacy HTTP API if Service Account wasn't used
+    if (fcmResults.length === 0 && targetTokens.length > 0) {
+      const serverKey =
+        process.env.FIREBASE_SERVER_KEY ||
+        process.env.NEXT_PUBLIC_FIREBASE_SERVER_KEY ||
+        process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+
+      if (serverKey) {
+        methodUsed = "fcm_legacy_key";
+        for (const fcmToken of targetTokens) {
+          try {
+            const fcmRes = await fetch("https://fcm.googleapis.com/fcm/send", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `key=${serverKey}`,
+              },
+              body: JSON.stringify({
+                to: fcmToken,
+                notification: { title: notificationTitle, body: notificationBody, icon: "/logo192.jpeg" },
+                data: { url: notificationUrl, type: type || "chat" },
+                priority: "high",
+              }),
+            });
+            const fcmJson = await fcmRes.json();
+            fcmResults.push({ token: fcmToken, result: fcmJson });
+          } catch (e: any) {
+            fcmResults.push({ token: fcmToken, error: e.message });
+          }
         }
       }
     }
 
     return NextResponse.json({
       success: true,
-      serverKeyConfigured: Boolean(serverKey),
-      serverKeyPrefix: serverKey ? `${serverKey.substring(0, 6)}...` : null,
-      message: serverKey
-        ? `Notification dispatched to ${targetTokens.length} devices`
-        : "FCM API Key missing",
+      serverKeyConfigured: Boolean(clientEmail || process.env.FIREBASE_SERVER_KEY || process.env.NEXT_PUBLIC_FIREBASE_API_KEY),
+      methodUsed,
+      message: `Notification dispatched to ${targetTokens.length} devices via ${methodUsed}`,
       targetTokensCount: targetTokens.length,
-      payload,
       fcmResults,
     });
   } catch (error: any) {
