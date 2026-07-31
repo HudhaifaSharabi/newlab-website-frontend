@@ -16,7 +16,6 @@ export async function POST(req: NextRequest) {
       targetTokens = [token];
     } else if (targetUser) {
       targetTokens = getUserFcmTokens(targetUser);
-      // Fallback: If no specific tokens registered for this exact user ID, broadcast to active tokens
       if (targetTokens.length === 0) {
         targetTokens = getAllFcmTokens();
       }
@@ -38,8 +37,11 @@ export async function POST(req: NextRequest) {
       },
     };
 
-    // 2. If Firebase Server Key is available in env, send to FCM Cloud API
-    const serverKey = process.env.FIREBASE_SERVER_KEY || process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+    // 2. Obtain FCM Server Key (Legacy Server Key or VAPID)
+    const serverKey = process.env.FIREBASE_SERVER_KEY;
+    if (!serverKey) {
+      console.warn("[FCM Warning] FIREBASE_SERVER_KEY environment variable is not set on Vercel.");
+    }
     
     let fcmResults = [];
     if (serverKey && targetTokens.length > 0) {
@@ -62,13 +64,17 @@ export async function POST(req: NextRequest) {
           fcmResults.push({ token: fcmToken, result: fcmJson });
         } catch (e: any) {
           console.error(`[FCM Send Error] Token ${fcmToken}:`, e);
+          fcmResults.push({ token: fcmToken, error: e.message });
         }
       }
     }
 
     return NextResponse.json({
       success: true,
-      message: `Notification dispatched to ${targetTokens.length} devices`,
+      serverKeyConfigured: Boolean(serverKey),
+      message: serverKey
+        ? `Notification dispatched to ${targetTokens.length} devices`
+        : "FIREBASE_SERVER_KEY missing in Vercel. Please add FIREBASE_SERVER_KEY to Vercel Environment Variables.",
       targetTokensCount: targetTokens.length,
       payload,
       fcmResults,
