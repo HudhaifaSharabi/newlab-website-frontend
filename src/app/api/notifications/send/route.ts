@@ -4,24 +4,44 @@ import { getUserFcmTokens, getAllFcmTokens } from "@/lib/fcmStore";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { targetUser, title, message, url, token, type } = body;
+    const { targetUser, targetName, targetPhone, title, message, url, token, type, senderUser } = body;
 
     if (!title || !message) {
       return NextResponse.json({ success: false, error: "Title and message are required" }, { status: 400 });
     }
 
-    // 1. Resolve Target Tokens
+    // 1. Resolve Target Tokens with multi-identifier matching
     let targetTokens: string[] = [];
+
     if (token) {
       targetTokens = [token];
-    } else if (targetUser) {
-      targetTokens = getUserFcmTokens(targetUser);
+    } else {
+      // Search by targetUser ID
+      if (targetUser) {
+        targetTokens = getUserFcmTokens(targetUser);
+      }
+      // Search by targetName
+      if (targetTokens.length === 0 && targetName) {
+        targetTokens = getUserFcmTokens(targetName);
+      }
+      // Search by targetPhone
+      if (targetTokens.length === 0 && targetPhone) {
+        targetTokens = getUserFcmTokens(targetPhone);
+      }
+      // Fallback: If exact user ID match didn't find tokens, send to all active tokens
       if (targetTokens.length === 0) {
         targetTokens = getAllFcmTokens();
       }
     }
 
-    console.log(`[FCM Send] Target User: [${targetUser}], Target Tokens Count: ${targetTokens.length}`);
+    // Filter out sender's own token if sender token is specified
+    const cleanSender = senderUser ? String(senderUser).trim().toLowerCase() : null;
+    const senderTokens = cleanSender ? getUserFcmTokens(cleanSender) : [];
+    if (senderTokens.length > 0 && targetTokens.length > 1) {
+      targetTokens = targetTokens.filter((t) => !senderTokens.includes(t));
+    }
+
+    console.log(`[FCM Send] Target User: [${targetUser}], Sender: [${senderUser}], Resolved Tokens Count: ${targetTokens.length}`);
 
     const payload = {
       notification: {
@@ -37,11 +57,8 @@ export async function POST(req: NextRequest) {
       },
     };
 
-    // 2. Obtain FCM Server Key (Legacy Server Key or VAPID)
+    // 2. Obtain FCM Server Key
     const serverKey = process.env.FIREBASE_SERVER_KEY;
-    if (!serverKey) {
-      console.warn("[FCM Warning] FIREBASE_SERVER_KEY environment variable is not set on Vercel.");
-    }
     
     let fcmResults = [];
     if (serverKey && targetTokens.length > 0) {
@@ -72,9 +89,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       serverKeyConfigured: Boolean(serverKey),
-      message: serverKey
-        ? `Notification dispatched to ${targetTokens.length} devices`
-        : "FIREBASE_SERVER_KEY missing in Vercel. Please add FIREBASE_SERVER_KEY to Vercel Environment Variables.",
+      message: `Notification dispatched to ${targetTokens.length} devices`,
       targetTokensCount: targetTokens.length,
       payload,
       fcmResults,

@@ -320,6 +320,8 @@ export function PatientChatView({ role }: Props) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               targetUser: "lab",
+              targetName: "Administrator",
+              senderUser: currentUserRef.current || undefined,
               title: `رسالة جديدة من ${currentUserRef.current || "مريض/مركز"}`,
               message: text,
               url: "/ar/chat",

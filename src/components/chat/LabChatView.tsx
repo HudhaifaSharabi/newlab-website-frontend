@@ -540,7 +540,9 @@ const markMessagesRead = (contactId: string) => {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               targetUser: activeContact.id,
-              title: `رسالة من ${activeContact.name || "المختبر"}`,
+              targetName: activeContact.name,
+              senderUser: "lab",
+              title: "رسالة من المختبر الرئيسي",
               message: text,
               url: "/ar/chat",
               type: "chat"
