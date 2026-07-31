@@ -110,6 +110,8 @@ export async function POST(req: NextRequest) {
                     body: notificationBody,
                   },
                   data: {
+                    title: notificationTitle,
+                    body: notificationBody,
                     url: notificationUrl,
                     type: type || "chat",
                   },
