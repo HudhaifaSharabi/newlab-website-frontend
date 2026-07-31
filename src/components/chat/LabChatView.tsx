@@ -236,15 +236,21 @@ const fetchContacts = useCallback(async (isPolling = false) => {
 
         setContacts(prev => {
           if (prev.length > 0) {
-            const prevUnreadMap = new Map(prev.map(c => [c.id, c.unread || 0]));
-            const newUnreadContact = mapped.find(c => (c.unread || 0) > (prevUnreadMap.get(c.id) || 0));
-            if (newUnreadContact) {
+            const prevMsgMap = new Map(prev.map(c => [c.id, `${c.lastMessage || ''}_${c.time || ''}`]));
+            const newIncomingContact = mapped.find(c => {
+              if (activeContactRef.current?.id === c.id && !document.hidden) return false;
+              const prevKey = prevMsgMap.get(c.id);
+              const currentKey = `${c.lastMessage || ''}_${c.time || ''}`;
+              return prevKey !== undefined && prevKey !== currentKey && Boolean(c.lastMessage);
+            });
+
+            if (newIncomingContact) {
               if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
                 try {
-                  new Notification(`💬 رسالة جديدة من ${newUnreadContact.name}`, {
-                    body: newUnreadContact.lastMessage || "وصلتك رسالة جديدة في الشات",
+                  new Notification(`💬 رسالة جديدة من ${newIncomingContact.name}`, {
+                    body: newIncomingContact.lastMessage || "وصلتك رسالة جديدة في الشات",
                     icon: "/logo192.jpeg",
-                    tag: `lab-contact-msg-${newUnreadContact.id}`,
+                    tag: `lab-contact-msg-${newIncomingContact.id}-${Date.now()}`,
                   });
                 } catch {}
               }

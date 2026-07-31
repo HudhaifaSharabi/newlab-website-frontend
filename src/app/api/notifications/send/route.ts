@@ -24,7 +24,7 @@ async function getGoogleAccessToken(clientEmail: string, privateKey: string): Pr
 
     const res = await fetch("https://oauth2.googleapis.com/token", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({
         grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
         assertion: jwt,
@@ -42,7 +42,7 @@ async function getGoogleAccessToken(clientEmail: string, privateKey: string): Pr
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { targetUser, targetName, targetPhone, title, message, url, token, type, senderUser } = body;
+    const { targetUser, targetName, targetPhone, title, message, url, token, type, senderToken } = body;
 
     if (!title || !message) {
       return NextResponse.json({ success: false, error: "Title and message are required" }, { status: 400 });
@@ -58,20 +58,18 @@ export async function POST(req: NextRequest) {
       if (targetName) getUserFcmTokens(targetName).forEach(t => tokensSet.add(t));
       if (targetPhone) getUserFcmTokens(targetPhone).forEach(t => tokensSet.add(t));
 
-      // Always fallback to all registered active FCM tokens to guarantee reach on mobile devices
+      // Include all registered active FCM tokens so both mobile devices and laptops are reached
       getAllFcmTokens().forEach(t => tokensSet.add(t));
     }
 
-    // Filter out sender's own device token if specified
-    const cleanSender = senderUser ? String(senderUser).trim().toLowerCase() : null;
-    const senderTokens = cleanSender ? getUserFcmTokens(cleanSender) : [];
-    if (senderTokens.length > 0 && tokensSet.size > 1) {
-      senderTokens.forEach(st => tokensSet.delete(st));
+    // Only filter out the specific sender device token if explicitly provided
+    if (senderToken && tokensSet.has(senderToken) && tokensSet.size > 1) {
+      tokensSet.delete(senderToken);
     }
 
     let targetTokens = Array.from(tokensSet);
 
-    console.log(`[FCM Push] Target: [${targetUser}], Sender: [${senderUser}], Total Target Devices: ${targetTokens.length}`);
+    console.log(`[FCM Push] Target: [${targetUser}], Total Target Devices (Mobile & Laptop): ${targetTokens.length}`);
 
     const notificationTitle = title;
     const notificationBody = message;
