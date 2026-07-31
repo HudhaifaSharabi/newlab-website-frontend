@@ -104,6 +104,19 @@ export async function listenForegroundNotifications(
       audio.play().catch(() => {});
     } catch {}
 
+    // Force native OS notification popup on screen even in foreground
+    try {
+      const title = payload.notification?.title || payload.data?.title || "نيولاب - إشعار جديد";
+      const body = payload.notification?.body || payload.data?.body || "";
+      if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+        new Notification(title, {
+          body,
+          icon: payload.notification?.icon || payload.data?.icon || "/logo192.jpeg",
+          tag: "newlab-foreground-alert",
+        });
+      }
+    } catch {}
+
     onNotificationReceived(payload);
   });
 }
