@@ -76,21 +76,6 @@ export function PatientChatView({ role }: Props) {
 
         currentUserRef.current = currentUser;
 
-        // Register FCM Notification Token for patient chat alerts under all identifiers
-        import("@/lib/firebase").then(({ requestNotificationPermission }) => {
-          requestNotificationPermission(currentUser);
-          requestNotificationPermission("center");
-          requestNotificationPermission("patient");
-          try {
-            const rawUser = localStorage.getItem("portal_user_v2");
-            if (rawUser) {
-              const u = JSON.parse(rawUser);
-              if (u.phone) requestNotificationPermission(u.phone);
-              if (u.name) requestNotificationPermission(u.name);
-            }
-          } catch {}
-        }).catch(() => {});
-
         // If a different user is now logged in, wipe ALL cached messages
         if (savedUser && currentUser.toLowerCase() !== savedUser.toLowerCase()) {
           const keysToRemove: string[] = [];
@@ -246,21 +231,6 @@ export function PatientChatView({ role }: Props) {
           });
           const updated = Array.from(messageMap.values());
           updated.sort((a, b) => (a.rawTimestamp || 0) - (b.rawTimestamp || 0) || a.id.localeCompare(b.id));
-
-          // Trigger screen Notification popup for new incoming messages
-          if (prev.length > 0) {
-            const prevIds = new Set(prev.map(m => m.id));
-            const newIncoming = updated.find(m => !m.isOutgoing && !prevIds.has(m.id));
-            if (newIncoming && typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
-              try {
-                new Notification("💬 رسالة جديدة من المختبر", {
-                  body: newIncoming.text || "وصلتك رسالة جديدة من المختبر الرئيسي",
-                  icon: "/logo192.jpeg",
-                  tag: `patient-msg-${newIncoming.id}`,
-                });
-              } catch {}
-            }
-          }
 
           saveCachedPatientMessages(updated);
           return updated;

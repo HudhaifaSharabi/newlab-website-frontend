@@ -15,7 +15,6 @@ import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
 import { useNetwork } from "@/hooks/useNetwork";
 import InstallPrompt from "@/components/pwa/InstallPrompt";
-import NotificationBanner from "@/components/notifications/NotificationBanner";
 
 interface PortalDashboardProps {
   onLogout: () => void;
@@ -183,42 +182,56 @@ export function PortalDashboard({ onLogout, userName, userPhone, userType }: Por
 
     const loadTicker = async () => {
       try {
-        const res = await fetch("/api/portal-ticker");
+        const res = await fetch("/api/portal-ticker", {
+          credentials: "include",
+        });
+        if (!res.ok) return;
         const data = await res.json();
-        // Handle: { message: { data: [...] } } OR { message: [...] }
-        let msgs: string[] = [];
+
+        let rawList: any = null;
         if (Array.isArray(data?.message?.data)) {
-          msgs = data.message.data;
+          rawList = data.message.data;
+        } else if (Array.isArray(data?.message?.messages)) {
+          rawList = data.message.messages;
         } else if (Array.isArray(data?.message)) {
-          msgs = data.message;
+          rawList = data.message;
         } else if (Array.isArray(data?.data)) {
-          msgs = data.data;
+          rawList = data.data;
+        } else if (typeof data?.message === "string" && data.message.trim()) {
+          rawList = [data.message];
         }
 
-        if (msgs.length > 0) {
-          setTickerMessages(msgs);
+        if (Array.isArray(rawList) && rawList.length > 0) {
+          const parsedMsgs: string[] = rawList
+            .map((item: any) => {
+              if (typeof item === "string") return item.trim();
+              if (item && typeof item === "object") {
+                return (
+                  item.message ||
+                  item.ticker_message ||
+                  item.text ||
+                  item.content ||
+                  item.title ||
+                  item.label ||
+                  ""
+                ).trim();
+              }
+              return "";
+            })
+            .filter((msg: string) => msg.length > 0);
+
+          if (parsedMsgs.length > 0) {
+            setTickerMessages(parsedMsgs);
+          }
         }
-      } catch { /* Fallback to defaults */ }
+      } catch {
+        /* Fallback to defaults gracefully */
+      }
     };
 
     loadBranches();
     loadTicker();
   }, []);
-
-  // ─── Setup Targeted FCM Push & In-App Notifications ───────────────────────
-  useEffect(() => {
-    import("@/lib/firebase").then(({ requestNotificationPermission, listenForegroundNotifications }) => {
-      if (userPhone || userName) {
-        requestNotificationPermission(userPhone || userName);
-      }
-
-      listenForegroundNotifications((payload) => {
-        const title = payload.notification?.title || payload.data?.title || "نتيجة جديدة";
-        const body = payload.notification?.body || payload.data?.body || "تمت إضافة نتيجة فحص جديدة في حسابك.";
-        showToast(`🔔 ${title}: ${body}`, "info");
-      });
-    }).catch(() => {});
-  }, [userPhone, userName, showToast]);
 
   // ─── Fetch Reports from Real API ──────────────────────────────────────────
   const fetchReports = useCallback(async () => {

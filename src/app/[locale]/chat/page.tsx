@@ -8,7 +8,6 @@ import { LabChatView } from "@/components/chat/LabChatView";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import InstallPrompt from "@/components/pwa/InstallPrompt";
-import NotificationBanner from "@/components/notifications/NotificationBanner";
 
 type Role = "center" | "lab" | "entry" | null;
 
@@ -230,17 +229,6 @@ function ChatPageContent() {
                 >
                   <span className="text-lg">{isDark ? "☀️" : "🌙"}</span>
                   <span className="font-semibold">{isDark ? "الوضع الفاتح" : "الوضع الداكن"}</span>
-                </button>
-                <button
-                  onClick={async () => {
-                    setMenuOpen(false);
-                    const { requestNotificationPermission } = await import("@/lib/firebase");
-                    await requestNotificationPermission(role || undefined);
-                  }}
-                  className="w-full text-right px-4 py-3 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-3 transition-colors"
-                >
-                  <span className="text-lg">🔔</span>
-                  <span className="font-semibold">تفعيل الإشعارات المباشرة</span>
                 </button>
                 <InstallPrompt variant="menu" onCloseMenu={() => setMenuOpen(false)} />
                 {role !== "lab" && (

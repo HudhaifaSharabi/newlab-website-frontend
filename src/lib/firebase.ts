@@ -23,94 +23,14 @@ export async function getFirebaseMessaging() {
   return getMessaging(app);
 }
 
-// Request Notification Permission and register device FCM Token
-export async function requestNotificationPermission(userIdentifier?: string) {
-  if (typeof window === "undefined" || !("Notification" in window)) {
-    return null;
-  }
-
-  try {
-    const permission = await Notification.requestPermission();
-    if (permission === "granted") {
-      const messaging = await getFirebaseMessaging();
-      if (!messaging) return null;
-
-      // Register Firebase Service Worker first and await ready state for Mobile Devices
-      let swRegistration: ServiceWorkerRegistration | undefined = undefined;
-      if ("serviceWorker" in navigator) {
-        try {
-          swRegistration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
-          await navigator.serviceWorker.ready;
-        } catch (swErr) {
-          console.warn("[FCM SW Registration Warning]:", swErr);
-        }
-      }
-
-      const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY || undefined;
-
-      const token = await getToken(messaging, {
-        vapidKey,
-        serviceWorkerRegistration: swRegistration,
-      });
-
-      console.log("=== [FCM Mobile & Desktop] FCM Token generated successfully ===", token);
-
-      if (token && userIdentifier) {
-        fetch("/api/notifications/register-token", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token, userIdentifier }),
-        })
-        .then(res => res.json())
-        .then(data => console.log(`=== [FCM Register Token Response for ${userIdentifier}] ===`, data))
-        .catch(err => console.error("=== [FCM Register Token Error] ===", err));
-      }
-
-      if (typeof window !== "undefined" && token) {
-        try {
-          localStorage.setItem("newlab_fcm_token", token);
-        } catch {}
-      }
-
-      return token;
-    }
-  } catch (err) {
-    console.error("Error obtaining FCM Notification token:", err);
-  }
-
+// Safely disabled - returns null without prompting user or throwing errors
+export async function requestNotificationPermission(_userIdentifier?: string) {
   return null;
 }
 
-// Listen for Foreground (In-App) Notifications when user is actively using the app
+// Safely disabled - no-op listener
 export async function listenForegroundNotifications(
-  onNotificationReceived: (payload: any) => void
+  _onNotificationReceived: (payload: any) => void
 ) {
-  const messaging = await getFirebaseMessaging();
-  if (!messaging) return () => {};
-
-  return onMessage(messaging, (payload) => {
-    console.log("=== [FCM] Foreground Notification Received ===", payload);
-    
-    // Play subtle audio alert if available
-    try {
-      const audio = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
-      audio.volume = 0.5;
-      audio.play().catch(() => {});
-    } catch {}
-
-    // Force native OS notification popup on screen
-    try {
-      const title = payload.notification?.title || payload.data?.title || "نيولاب - إشعار جديد";
-      const body = payload.notification?.body || payload.data?.body || "";
-      if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
-        new Notification(title, {
-          body,
-          icon: payload.notification?.icon || payload.data?.icon || "/logo192.jpeg",
-          tag: "newlab-foreground-alert",
-        });
-      }
-    } catch {}
-
-    onNotificationReceived(payload);
-  });
+  return () => {};
 }

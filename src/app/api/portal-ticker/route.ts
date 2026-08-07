@@ -12,9 +12,9 @@ export async function GET(request: NextRequest) {
       method: "GET",
       headers: {
         "Accept": "application/json",
+        "Cookie": request.headers.get("cookie") ?? "",
       },
-      // Short timeout for ticker
-      signal: AbortSignal.timeout(5000),
+      signal: AbortSignal.timeout(10000),
     });
 
     if (!backendRes.ok) {
