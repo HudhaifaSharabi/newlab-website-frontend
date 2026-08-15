@@ -20,10 +20,10 @@ messaging.onBackgroundMessage((payload) => {
 
   // 🚀 منع التكرار: Firebase SDK يعرض الإشعار تلقائياً إذا كان يحتوي على كائن notification.
   // إذا قمنا باستدعاء showNotification هنا يدوياً، سيظهر الإشعار مرتين!
-  // if (payload.notification) {
-  //   console.log('[firebase-messaging-sw.js] Notification already handled automatically by Firebase SDK.');
-  //   return;
-  // }
+  if (payload.notification) {
+    console.log('[firebase-messaging-sw.js] Notification already handled automatically by Firebase SDK.');
+    return;
+  }
 
   const notificationTitle = payload.data?.title || 'مختبرات نيولاب التخصصية';
   const notificationOptions = {
