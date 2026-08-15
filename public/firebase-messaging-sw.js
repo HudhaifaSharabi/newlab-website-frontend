@@ -29,7 +29,7 @@ messaging.onBackgroundMessage((payload) => {
   const notificationOptions = {
     body: payload.notification?.body || payload.data?.body || 'لديك إشعار جديد من مختبرات نيولاب',
     icon: '/logo192.jpeg',
-    badge: '/logo192.jpeg',
+    badge: '/notification-badge.png',
     tag: payload.data?.tag || 'newlab-mobile-push',
     data: {
       url: payload.data?.url || '/ar/chat',

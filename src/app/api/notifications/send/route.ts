@@ -145,7 +145,7 @@ export async function POST(req: NextRequest) {
                       title: notificationTitle,
                       body: notificationBody,
                       icon: "/logo192.jpeg",
-                      badge: "/logo192.jpeg",
+                      badge: "/notification-badge.png",
                       vibrate: [200, 100, 200],
                       requireInteraction: true,
                     },
