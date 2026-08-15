@@ -319,6 +319,18 @@ export function PatientChatView({ role }: Props) {
           const returnedMsg = json?.message?.data || json?.data;
 
           const senderToken = localStorage.getItem("fcm_sender_token") || undefined;
+          
+          let centerName = currentUserRef.current || "مريض/مركز";
+          try {
+            const stored = localStorage.getItem("portal_user_v2");
+            if (stored) {
+              const parsed = JSON.parse(stored);
+              if (parsed && parsed.name) {
+                centerName = parsed.name;
+              }
+            }
+          } catch (e) {}
+
           // Trigger targeted FCM push notification to Lab Staff
           fetch("/api/notifications/send", {
             method: "POST",
@@ -328,7 +340,7 @@ export function PatientChatView({ role }: Props) {
               targetName: "Administrator",
               senderUser: currentUserRef.current || undefined,
               senderToken: senderToken,
-              title: `رسالة جديدة من ${currentUserRef.current || "مريض/مركز"}`,
+              title: `رسالة جديدة من ${centerName}`,
               message: text,
               url: "/ar/chat",
               type: "chat"

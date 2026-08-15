@@ -18,7 +18,14 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage((payload) => {
   console.log('[firebase-messaging-sw.js] Received background message:', payload);
 
-  const notificationTitle = payload.notification?.title || payload.data?.title || 'مختبرات نيولاب التخصصية';
+  // 🚀 منع التكرار: Firebase SDK يعرض الإشعار تلقائياً إذا كان يحتوي على كائن notification.
+  // إذا قمنا باستدعاء showNotification هنا يدوياً، سيظهر الإشعار مرتين!
+  // if (payload.notification) {
+  //   console.log('[firebase-messaging-sw.js] Notification already handled automatically by Firebase SDK.');
+  //   return;
+  // }
+
+  const notificationTitle = payload.data?.title || 'مختبرات نيولاب التخصصية';
   const notificationOptions = {
     body: payload.notification?.body || payload.data?.body || 'لديك إشعار جديد من مختبرات نيولاب',
     icon: '/logo192.jpeg',

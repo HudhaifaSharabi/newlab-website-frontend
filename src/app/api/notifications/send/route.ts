@@ -77,12 +77,7 @@ export async function POST(req: NextRequest) {
       if (targetUser) {
         (await getFrappeTokens(targetUser, cookie)).forEach(t => tokensSet.add(t));
       }
-      if (targetName) {
-        (await getFrappeTokens(targetName, cookie)).forEach(t => tokensSet.add(t));
-      }
-      if (targetPhone) {
-        (await getFrappeTokens(targetPhone, cookie)).forEach(t => tokensSet.add(t));
-      }
+      // Removed broad fallback searches (targetName/targetPhone) to prevent Frappe from returning ALL client tokens by mistake
     }
 
     // Only filter out the specific sender device token if explicitly provided
