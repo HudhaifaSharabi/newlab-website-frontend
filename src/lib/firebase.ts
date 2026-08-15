@@ -30,9 +30,18 @@ export async function requestNotificationPermission(userIdentifier?: string) {
 
     const permission = await Notification.requestPermission();
     if (permission === 'granted') {
+      let swRegistration: ServiceWorkerRegistration | undefined;
+      try {
+        swRegistration = await navigator.serviceWorker.register('/sw.js');
+      } catch (err) {
+        console.warn('Failed to register /sw.js for Firebase Messaging, falling back to default:', err);
+      }
+
       const token = await getToken(messaging, {
-        vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY
+        vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
+        serviceWorkerRegistration: swRegistration
       });
+      
       if (token && userIdentifier) {
         await fetch('/api/notifications/register-token', {
           method: 'POST',
