@@ -5,7 +5,6 @@ import { ChatMessage, MessageData } from "./ChatMessage";
 import { ChatInput } from "./ChatInput";
 import { useNetwork } from "@/hooks/useNetwork";
 import { AlertCircle } from "lucide-react";
-import NotificationBanner from "@/components/notifications/NotificationBanner";
 
 interface Props {
   role: "center";
@@ -29,14 +28,14 @@ function getCachedPatientMessages(): MessageData[] {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) return parsed;
     }
-  } catch {}
+  } catch { }
   return [];
 }
 
 function saveCachedPatientMessages(msgs: MessageData[]) {
   try {
     localStorage.setItem("newlab_patient_chat_msgs", JSON.stringify(msgs));
-  } catch {}
+  } catch { }
 }
 
 function extractArray(obj: any): any[] {
@@ -94,8 +93,17 @@ export function PatientChatView({ role }: Props) {
         }
 
         localStorage.setItem("newlab_current_user", currentUser);
+
+        import("@/lib/firebase").then(({ requestNotificationPermission, listenForegroundNotifications }) => {
+          requestNotificationPermission(currentUser).then(token => {
+            if (token) localStorage.setItem("fcm_sender_token", token);
+          });
+          listenForegroundNotifications((payload) => {
+            // notification logic
+          });
+        }).catch(() => { });
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const handleScroll = () => {
@@ -220,7 +228,7 @@ export function PatientChatView({ role }: Props) {
           prev.forEach(localMsg => {
             if (!messageMap.has(localMsg.id)) {
               if (localMsg.id.startsWith("temp-")) {
-                const alreadyFetched = mapped.some(serverMsg => 
+                const alreadyFetched = mapped.some(serverMsg =>
                   Boolean(serverMsg.text) && serverMsg.text === localMsg.text && serverMsg.isOutgoing === localMsg.isOutgoing
                 );
                 if (!alreadyFetched) messageMap.set(localMsg.id, localMsg);
@@ -244,31 +252,31 @@ export function PatientChatView({ role }: Props) {
               headers: getFrappeHeaders(),
               credentials: "include",
               body: JSON.stringify({ contact_id: "Administrator" }),
-            }).catch(() => {});
+            }).catch(() => { });
             fetch("/api/chat-read", {
               method: "POST",
               headers: getFrappeHeaders(),
               credentials: "include",
               body: JSON.stringify({ contact_id: "lab" }),
-            }).catch(() => {});
-          } catch {}
+            }).catch(() => { });
+          } catch { }
         }
       }
-    } catch {} finally {
+    } catch { } finally {
       isFetchingMessages.current = false;
     }
   }, []);
 
   useEffect(() => {
     fetchMessages();
-    fetch("/api/chat-ping", { method: "POST", credentials: "include" }).catch(() => {});
+    fetch("/api/chat-ping", { method: "POST", credentials: "include" }).catch(() => { });
 
     const interval = setInterval(() => {
       fetchMessages();
     }, 3500);
 
     const pingInterval = setInterval(() => {
-      fetch("/api/chat-ping", { method: "POST", credentials: "include" }).catch(() => {});
+      fetch("/api/chat-ping", { method: "POST", credentials: "include" }).catch(() => { });
     }, 60000);
 
     return () => {
@@ -279,7 +287,7 @@ export function PatientChatView({ role }: Props) {
 
   const handleSendMessage = async (text: string, files: File[], isUrgent?: boolean) => {
     const time = new Date().toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" });
-    
+
     if (text) {
       const tempId = `temp-${Date.now()}`;
       const optimisticMsg: MessageData = {
@@ -310,6 +318,7 @@ export function PatientChatView({ role }: Props) {
           const json = await res.json();
           const returnedMsg = json?.message?.data || json?.data;
 
+          const senderToken = localStorage.getItem("fcm_sender_token") || undefined;
           // Trigger targeted FCM push notification to Lab Staff
           fetch("/api/notifications/send", {
             method: "POST",
@@ -318,15 +327,14 @@ export function PatientChatView({ role }: Props) {
               targetUser: "lab",
               targetName: "Administrator",
               senderUser: currentUserRef.current || undefined,
+              senderToken: senderToken,
               title: `رسالة جديدة من ${currentUserRef.current || "مريض/مركز"}`,
               message: text,
               url: "/ar/chat",
               type: "chat"
             })
           })
-          .then(r => r.json())
-          .then(data => console.log("=== [FCM Debug Patient Send Response] ===", data))
-          .catch(e => console.error("=== [FCM Debug Patient Send Error] ===", e));
+            .catch(e => console.error(e));
 
           if (returnedMsg?.id) {
             setMessages(prev => prev.map(m => m.id === tempId ? {
@@ -359,8 +367,8 @@ export function PatientChatView({ role }: Props) {
   };
 
   return (
-    <div 
-      className="flex flex-col h-full w-full bg-slate-50 dark:bg-slate-950 overflow-hidden relative" 
+    <div
+      className="flex flex-col h-full w-full bg-slate-50 dark:bg-slate-950 overflow-hidden relative"
       dir="rtl"
     >
       {!isOnline && (
@@ -372,7 +380,7 @@ export function PatientChatView({ role }: Props) {
 
 
       {/* Messages */}
-      <div 
+      <div
         ref={scrollContainerRef}
         onScroll={handleScroll}
         className="flex-1 overflow-y-auto p-4 md:p-6 bg-slate-50 dark:bg-slate-950 flex flex-col relative precision-grid-light dark:precision-grid-dark z-0"
@@ -380,7 +388,7 @@ export function PatientChatView({ role }: Props) {
         <button className="self-center bg-white dark:bg-slate-800 text-brand-primary dark:text-brand-primary border border-slate-200 dark:border-slate-700 px-4 py-1.5 rounded-full text-xs md:text-sm font-semibold mb-6 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm z-10">
           ⬆️ تحميل الرسائل الأقدم
         </button>
-        
+
         {messages.map((msg, idx) => {
           const currentLabel = getMessageDateLabel(msg.rawTimestamp);
           const prevLabel = idx > 0 ? getMessageDateLabel(messages[idx - 1].rawTimestamp) : null;

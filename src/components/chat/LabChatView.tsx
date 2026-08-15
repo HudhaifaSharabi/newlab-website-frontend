@@ -221,7 +221,7 @@ const fetchContacts = useCallback(async (isPolling = false) => {
 
           const rawTimestamp = parseTimestampSafe(rawTime);
           
-          const isOnline = item.online !== undefined ? Boolean(item.online || item.is_online) : true;
+          const isOnline = (item.online !== undefined || item.is_online !== undefined) ? Boolean(item.online || item.is_online) : false;
           const lastSeenStr = item.last_seen || item.lastSeen || "";
 
           return {
@@ -417,15 +417,15 @@ const fetchMessages = useCallback(async (contactId : string) => {
   // Register FCM Notification Token for Lab Staff under all identifiers
   useEffect(() => {
     import("@/lib/firebase").then(({ requestNotificationPermission, listenForegroundNotifications }) => {
-      requestNotificationPermission("lab");
+      requestNotificationPermission("lab").then(token => {
+        if (token) localStorage.setItem("fcm_sender_token", token);
+      });
       requestNotificationPermission("Administrator");
       requestNotificationPermission("administrator");
       requestNotificationPermission("المختبر الرئيسي");
 
       listenForegroundNotifications((payload) => {
-        const title = payload.notification?.title || payload.data?.title || "رسالة جديدة من مريض";
-        const body = payload.notification?.body || payload.data?.body || "";
-        console.log("🔔 [FCM Lab Foreground Alert]:", title, body);
+        // notification logic
       });
     }).catch(() => {});
   }, []);
@@ -465,6 +465,7 @@ const markMessagesRead = (contactId: string) => {
   const selectContact = (contact: Contact) => {
     setActiveContact(contact);
     setShowMobileChat(true);
+    setSearch(""); // 🚀 تفريغ البحث عند النقر
     markMessagesRead(contact.id);
   };
 
@@ -554,6 +555,7 @@ const markMessagesRead = (contactId: string) => {
           const json = await res.json();
           const returnedMsg = json?.message?.data || json?.data;
 
+          const senderToken = localStorage.getItem("fcm_sender_token") || undefined;
           // Trigger targeted FCM push notification to specific patient device
           fetch("/api/notifications/send", {
             method: "POST",
@@ -562,15 +564,14 @@ const markMessagesRead = (contactId: string) => {
               targetUser: activeContact.id,
               targetName: activeContact.name,
               senderUser: "lab",
+              senderToken: senderToken,
               title: "رسالة من المختبر الرئيسي",
               message: text,
               url: "/ar/chat",
               type: "chat"
             })
           })
-          .then(r => r.json())
-          .then(data => console.log("=== [FCM Debug Lab Send Response] ===", data))
-          .catch(e => console.error("=== [FCM Debug Lab Send Error] ===", e));
+          .catch(e => console.error(e));
 
           if (returnedMsg?.id) {
             const realId = String(returnedMsg.id);
@@ -808,7 +809,7 @@ const markMessagesRead = (contactId: string) => {
                   {activeContact.online ? (
                     <><span className="w-2 h-2 rounded-full bg-green-500"></span>متصل الآن</>
                   ) : (
-                    <span className="text-slate-400">آخر ظهور: {activeContact.time}</span>
+                    <span className="text-slate-400">آخر ظهور: {activeContact.lastSeen ? formatContactTime(activeContact.lastSeen) : activeContact.time}</span>
                   )}
                 </span>
               </div>

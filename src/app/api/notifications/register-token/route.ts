@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { registerUserFcmToken } from "@/lib/fcmStore";
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,16 +10,25 @@ export async function POST(req: NextRequest) {
     }
 
     const cleanUser = String(userIdentifier).trim().toLowerCase();
-    registerUserFcmToken(cleanUser, token);
 
-    // Sync token with backend API if configured
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     if (apiUrl) {
-      fetch(`${apiUrl}/api/method/newlab_site.api.register_fcm_token`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user: cleanUser, fcm_token: token }),
-      }).catch(() => {});
+      try {
+        const res = await fetch(`${apiUrl}/api/method/newlab_site.api.register_fcm_token`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Cookie": req.headers.get("cookie") ?? "",
+          },
+          body: JSON.stringify({ user_identifier: cleanUser, fcm_token: token }),
+        });
+        
+        if (!res.ok) {
+          // silently fail
+        }
+      } catch (e) {
+        // silently fail
+      }
     }
 
     return NextResponse.json({

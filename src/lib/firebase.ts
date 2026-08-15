@@ -23,14 +23,44 @@ export async function getFirebaseMessaging() {
   return getMessaging(app);
 }
 
-// Safely disabled - returns null without prompting user or throwing errors
-export async function requestNotificationPermission(_userIdentifier?: string) {
+export async function requestNotificationPermission(userIdentifier?: string) {
+  try {
+    const messaging = await getFirebaseMessaging();
+    if (!messaging) return null;
+
+    const permission = await Notification.requestPermission();
+    if (permission === 'granted') {
+      const token = await getToken(messaging, {
+        vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY
+      });
+      if (token && userIdentifier) {
+        await fetch('/api/notifications/register-token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, userIdentifier }),
+        });
+        return token;
+      }
+    }
+  } catch (error) {
+    console.error('Notification permission error:', error);
+  }
   return null;
 }
 
-// Safely disabled - no-op listener
 export async function listenForegroundNotifications(
-  _onNotificationReceived: (payload: any) => void
+  onNotificationReceived: (payload: any) => void
 ) {
-  return () => {};
+  try {
+    const messaging = await getFirebaseMessaging();
+    if (!messaging) return () => {};
+
+    const unsubscribe = onMessage(messaging, (payload) => {
+      onNotificationReceived(payload);
+    });
+    return unsubscribe;
+  } catch (error) {
+    console.error('Listen foreground notifications error:', error);
+    return () => {};
+  }
 }

@@ -8,6 +8,7 @@ import { LabChatView } from "@/components/chat/LabChatView";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import InstallPrompt from "@/components/pwa/InstallPrompt";
+import NotificationBanner from "@/components/notifications/NotificationBanner";
 
 type Role = "center" | "lab" | "entry" | null;
 
@@ -208,8 +209,10 @@ function ChatPageContent() {
           </div>
         )}
 
-        {/* Right side: Menu Button */}
-        <div className="relative">
+        {/* Right side: Menu Button & Notifications */}
+        <div className="relative flex items-center gap-2">
+          <NotificationBanner userIdentifier={role === "lab" ? "lab" : undefined} />
+          
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm"

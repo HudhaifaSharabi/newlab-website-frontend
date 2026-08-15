@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserFcmTokens, getAllFcmTokens } from "@/lib/fcmStore";
 import crypto from "crypto";
 
 // Helper to generate Google OAuth2 Access Token using Service Account credentials
@@ -39,6 +38,25 @@ async function getGoogleAccessToken(clientEmail: string, privateKey: string): Pr
   }
 }
 
+async function getFrappeTokens(userIdentifier: string, cookie: string): Promise<string[]> {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (!apiUrl || !userIdentifier) return [];
+  try {
+    const res = await fetch(`${apiUrl}/api/method/newlab_site.api.get_fcm_tokens?user_identifier=${encodeURIComponent(userIdentifier)}`, {
+      method: "GET",
+      headers: { "Cookie": cookie },
+    });
+    
+    if (!res.ok) {
+      return [];
+    }
+    const data = await res.json();
+    return Array.isArray(data.message) ? data.message : [];
+  } catch (e) {
+    return [];
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -48,28 +66,31 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Title and message are required" }, { status: 400 });
     }
 
+    const cookie = req.headers.get("cookie") ?? "";
+
     // 1. Resolve Target Device Tokens (Collect all active tokens to guarantee delivery to Mobile Phones & Laptops)
     const tokensSet = new Set<string>();
 
     if (token) {
       tokensSet.add(token);
     } else {
-      if (targetUser) getUserFcmTokens(targetUser).forEach(t => tokensSet.add(t));
-      if (targetName) getUserFcmTokens(targetName).forEach(t => tokensSet.add(t));
-      if (targetPhone) getUserFcmTokens(targetPhone).forEach(t => tokensSet.add(t));
-
-      // Include all registered active FCM tokens so both mobile devices and laptops are reached
-      getAllFcmTokens().forEach(t => tokensSet.add(t));
+      if (targetUser) {
+        (await getFrappeTokens(targetUser, cookie)).forEach(t => tokensSet.add(t));
+      }
+      if (targetName) {
+        (await getFrappeTokens(targetName, cookie)).forEach(t => tokensSet.add(t));
+      }
+      if (targetPhone) {
+        (await getFrappeTokens(targetPhone, cookie)).forEach(t => tokensSet.add(t));
+      }
     }
 
     // Only filter out the specific sender device token if explicitly provided
-    if (senderToken && tokensSet.has(senderToken) && tokensSet.size > 1) {
+    if (senderToken && tokensSet.has(senderToken)) {
       tokensSet.delete(senderToken);
     }
 
     let targetTokens = Array.from(tokensSet);
-
-    console.log(`[FCM Push] Target: [${targetUser}], Total Target Devices (Mobile & Laptop): ${targetTokens.length}`);
 
     const notificationTitle = title;
     const notificationBody = message;
