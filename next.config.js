@@ -74,3 +74,5 @@ const nextConfig = {
 };
 
 module.exports = withNextIntl(withPWA(nextConfig));
+
+import('@opennextjs/cloudflare').then(m => m.initOpenNextCloudflareForDev());
