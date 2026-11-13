@@ -53,7 +53,7 @@ export default async function LocaleLayout({
         )}
       >
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+          <ThemeProvider attribute="class" defaultTheme="light" storageKey="newlab-theme-light" enableSystem={false}>
             <GlobalLoader />
             <main className="min-h-screen font-sans overflow-x-hidden">{children}</main>
             <FloatingContactWidget />

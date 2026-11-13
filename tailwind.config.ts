@@ -21,13 +21,15 @@ const config: Config = {
           slate: '#0f172a',
           mist: '#f8fafc'
         },
-        base: {
-          DEFAULT: '#f8f9fb',
-          dark: '#0c111d'
-        },
         accent: {
           DEFAULT: '#1c7ed6',
           subtle: '#e7f2ff'
+        }
+      },
+      backgroundColor: {
+        base: {
+          DEFAULT: '#f8f9fb',
+          dark: '#0c111d'
         }
       },
       boxShadow: {

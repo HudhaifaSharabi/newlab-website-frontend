@@ -19,7 +19,7 @@ export default function Page() {
   }, [isRTL, language]);
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+    <ThemeProvider attribute="class" defaultTheme="light" storageKey="newlab-theme-light" enableSystem={false}>
       <div
         className={clsx(
           "relative h-screen overflow-hidden bg-brand-night text-white antialiased transition-colors"

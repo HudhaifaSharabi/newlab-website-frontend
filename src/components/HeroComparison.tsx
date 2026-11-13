@@ -199,7 +199,7 @@ export default function HeroWithAbout({
   };
   
   const aboutCards = aboutContent.cards || [];
-  const activeTheme = mounted && resolvedTheme ? resolvedTheme : "dark";
+  const activeTheme = mounted && resolvedTheme ? resolvedTheme : "light";
   const isDark = activeTheme === "dark";
 
   const localeHrefs = useMemo(() => {
@@ -846,7 +846,7 @@ export default function HeroWithAbout({
               {isRTL ? aboutContent.title_ar : aboutContent.title_en}
             </h2>
 
-            <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed dark:text-slate-300/85">
+            <p className="mt-3 text-[15px] sm:text-[16px] text-slate-700 leading-relaxed dark:text-slate-300/85">
               {isRTL ? aboutContent.description_ar : aboutContent.description_en}
             </p>
           </div>
@@ -925,7 +925,7 @@ export default function HeroWithAbout({
                               />
                             ))}
                           </div>
-                          <span className="font-mono text-xs font-bold text-slate-400 dark:text-slate-500">
+                          <span dir="ltr" className="font-mono text-xs font-bold text-slate-400 dark:text-slate-500">
                             0{i + 1}/0{aboutCards.length}
                           </span>
                         </div>
@@ -946,7 +946,7 @@ export default function HeroWithAbout({
                       </h3>
 
                       {/* Body */}
-                      <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed dark:text-slate-300 line-clamp-3">
+                      <p className="mt-3 text-[15px] sm:text-[16px] text-slate-700 leading-relaxed dark:text-slate-300 line-clamp-3">
                         {isRTL ? c.description_ar : c.description_en}
                       </p>
                     </div>
@@ -1010,7 +1010,7 @@ export default function HeroWithAbout({
                         <span className="text-xs font-bold tracking-wider uppercase bg-white/15 backdrop-blur-md px-3 py-1 rounded-full border border-white/20">
                           {isRTL ? c.tag_ar : c.tag_en}
                         </span>
-                        <span className="font-mono text-xs text-white/75">
+                        <span dir="ltr" className="font-mono text-xs text-white/75">
                           0{i + 1} / 0{aboutCards.length}
                         </span>
                       </div>

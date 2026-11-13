@@ -12,9 +12,23 @@
 
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
   --font-heading: 'Cairo', sans-serif;
   --font-body: 'Tajawal', sans-serif;
+  --bg: #f8fafc;
+  --bg-elevated: rgba(15, 23, 42, 0.04);
+  --text: #0f172a;
+  --text-muted: #475569;
+  --border: rgba(15, 23, 42, 0.12);
+  --accent-primary: #1a658d;
+  --accent-secondary: #b9292f;
+  --spotlight: rgba(26, 101, 141, 0.12);
+  --grid-line: rgba(15, 23, 42, 0.06);
+  --glow: 0 0 40px rgba(26, 101, 141, 0.2);
+}
+
+.dark {
+  color-scheme: dark;
   --bg: #020617;
   --bg-elevated: rgba(255, 255, 255, 0.04);
   --text: #e2e8f0;
@@ -35,6 +49,7 @@ body {
 
 .dark body {
   background: var(--bg);
+  color: var(--text);
 }
 
 .precision-grid-dark,

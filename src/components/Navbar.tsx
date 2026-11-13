@@ -31,7 +31,7 @@ export function Navbar({ language, onLanguageChange, isRTL = false }: NavbarProp
 
   useEffect(() => setMounted(true), []);
 
-  const isDark = (mounted ? resolvedTheme : "dark") === "dark";
+  const isDark = (mounted ? resolvedTheme : "light") === "dark";
   const ctaText = language === "ar" ? "سحب منزليًا" : "Book a test";
 
   return (

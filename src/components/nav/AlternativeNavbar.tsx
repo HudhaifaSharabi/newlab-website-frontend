@@ -101,7 +101,7 @@ export default function AlternativeNavbar() {
   const navItemsActive = copy.nav.items;
   const uiCopy = copy.ui;
   const languageOptions: Language[] = isRTL ? ["ar", "en"] : ["en", "ar"];
-  const activeTheme = mounted && resolvedTheme ? resolvedTheme : "dark";
+  const activeTheme = mounted && resolvedTheme ? resolvedTheme : "light";
   const isDark = activeTheme === "dark";
 
   const localeHrefs = useMemo(() => {
