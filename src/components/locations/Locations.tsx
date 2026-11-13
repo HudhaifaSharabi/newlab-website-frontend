@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from "@react-google-maps/api";
-import { MapPin, Phone, ExternalLink } from "lucide-react";
+import { MapPin, Phone, ExternalLink, Navigation, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { LocationsData } from "@/types/api";
 
@@ -101,7 +101,35 @@ export function Locations({ locationsData }: { locationsData?: LocationsData }) 
   };
 
   return (
-    <section className="relative bg-gradient-to-b from-white to-slate-50 py-20 dark:from-slate-900 dark:to-slate-800">
+    <section
+      dir={isRTL ? "rtl" : "ltr"}
+      className="relative bg-gradient-to-b from-white to-slate-50 py-20 dark:from-slate-900 dark:to-slate-800"
+    >
+      {/* Override default Google Maps InfoWindow padding, header gap, and ugly scrollbars */}
+      <style jsx global>{`
+        .gm-style .gm-style-iw-c {
+          padding: 0 !important;
+          border-radius: 18px !important;
+          box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.28) !important;
+          overflow: hidden !important;
+          background: transparent !important;
+          max-width: 300px !important;
+        }
+        .gm-style .gm-style-iw-d {
+          overflow: hidden !important;
+          padding: 0 !important;
+          max-height: none !important;
+        }
+        .gm-style .gm-style-iw-chr {
+          display: none !important;
+        }
+        .gm-style .gm-style-iw-tc::after {
+          background: #ffffff !important;
+        }
+        .dark .gm-style .gm-style-iw-tc::after {
+          background: #0f172a !important;
+        }
+      `}</style>
       <div className="mx-auto max-w-7xl px-6">
         <div className="mb-12 text-center">
           <h2 className="mb-4 text-4xl font-bold text-slate-900 dark:text-white flex justify-center w-full">
@@ -153,11 +181,102 @@ export function Locations({ locationsData }: { locationsData?: LocationsData }) 
                         }
                       >
                         {selectedBranchId === branch.id && (
-                          <InfoWindow onCloseClick={() => setSelectedBranchId(null)}>
-                            <div className="p-2">
-                              <h3 className="mb-2 font-bold text-slate-900">{branch.name}</h3>
-                              <p className="mb-1 text-sm text-slate-600">{branch.address}</p>
-                              <p className="text-sm text-slate-600">{branch.phone}</p>
+                          <InfoWindow
+                            onCloseClick={() => setSelectedBranchId(null)}
+                            options={{
+                              pixelOffset: new window.google.maps.Size(0, -4),
+                            }}
+                          >
+                            <div
+                              dir={isRTL ? "rtl" : "ltr"}
+                              className="w-[265px] overflow-hidden rounded-[18px] border border-slate-200/80 bg-white text-slate-900 dark:border-slate-700/80 dark:bg-[#0f172a] dark:text-white"
+                            >
+                              {/* Top Brand Accent Bar */}
+                              <div
+                                className={`h-1.5 w-full ${
+                                  branch.type === "main"
+                                    ? "bg-gradient-to-r from-[#b9292f] via-[#e11d48] to-[#1a658d]"
+                                    : "bg-gradient-to-r from-[#1a658d] via-[#0284c7] to-[#b9292f]"
+                                }`}
+                              />
+
+                              <div className="p-4">
+                                {/* Header: Title, Badge, & Custom Close Button */}
+                                <div className="mb-3 flex items-start justify-between gap-2">
+                                  <div>
+                                    <h3 className="text-base font-extrabold leading-snug text-slate-900 dark:text-white">
+                                      {branch.name}
+                                    </h3>
+                                    {branch.type === "main" && (
+                                      <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-[#b9292f]/10 px-2.5 py-0.5 text-[11px] font-bold text-[#b9292f] dark:bg-[#b9292f]/20 dark:text-red-300">
+                                        <span className="h-1.5 w-1.5 rounded-full bg-[#b9292f] dark:bg-red-400" />
+                                        {t("mainBranch")}
+                                      </span>
+                                    )}
+                                  </div>
+
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSelectedBranchId(null);
+                                    }}
+                                    aria-label="Close"
+                                    className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-colors hover:bg-slate-200 hover:text-slate-800 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-white"
+                                  >
+                                    <X className="h-3.5 w-3.5" />
+                                  </button>
+                                </div>
+
+                                {/* Details */}
+                                <div className="space-y-2 border-t border-slate-100 pt-3 text-xs dark:border-slate-800">
+                                  <div className="flex items-start gap-2.5 text-slate-600 dark:text-slate-300">
+                                    <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-lg bg-[#1a658d]/10 text-[#1a658d] dark:bg-sky-500/15 dark:text-sky-400">
+                                      <MapPin className="h-3.5 w-3.5" />
+                                    </div>
+                                    <span className="mt-0.5 leading-relaxed font-medium">
+                                      {branch.address}
+                                    </span>
+                                  </div>
+
+                                  {branch.phone && (
+                                    <div className="flex items-center gap-2.5 text-slate-600 dark:text-slate-300">
+                                      <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-lg bg-[#1a658d]/10 text-[#1a658d] dark:bg-sky-500/15 dark:text-sky-400">
+                                        <Phone className="h-3.5 w-3.5" />
+                                      </div>
+                                      <span
+                                        dir="ltr"
+                                        className="font-semibold tracking-wide text-slate-700 dark:text-slate-200"
+                                      >
+                                        {branch.phone}
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Action Buttons */}
+                                <div className="mt-3.5 flex items-center gap-2 pt-1">
+                                  <a
+                                    href={`https://www.google.com/maps/dir/?api=1&destination=${branch.lat},${branch.lng}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-[#1a658d] px-3 py-2 text-xs font-bold text-white shadow-sm transition-all hover:bg-[#145070] active:scale-[0.98]"
+                                  >
+                                    <Navigation className="h-3.5 w-3.5" />
+                                    <span>{t("getDirections")}</span>
+                                  </a>
+
+                                  {branch.phone && (
+                                    <a
+                                      href={`tel:${branch.phone}`}
+                                      className="flex items-center justify-center rounded-xl border border-slate-200 bg-slate-50 p-2 text-slate-700 transition-colors hover:border-[#b9292f]/40 hover:bg-[#b9292f]/10 hover:text-[#b9292f] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                                      title={branch.phone}
+                                    >
+                                      <Phone className="h-3.5 w-3.5" />
+                                    </a>
+                                  )}
+                                </div>
+                              </div>
                             </div>
                           </InfoWindow>
                         )}
@@ -207,7 +326,7 @@ export function Locations({ locationsData }: { locationsData?: LocationsData }) 
                     </div>
                     <div className="flex items-center gap-2">
                       <Phone className="h-4 w-4 flex-shrink-0 text-[#1a658d]" />
-                      <span>{branch.phone}</span>
+                      <span dir="ltr">{branch.phone}</span>
                     </div>
                   </div>
                 </div>

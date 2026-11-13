@@ -389,7 +389,8 @@
       "offline": "Offline"
     },
     "specs": {
-      "speed": "Throughput Speed",
+      "speed": "Throughput Speed (Per Hour)",
+      "speedUnit": "/ hr",
       "accuracy": "Accuracy Rate",
       "related": "Performed Tests"
     },

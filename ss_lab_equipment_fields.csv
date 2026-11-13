@@ -1,0 +1,19 @@
+اسم المتغير في الكود (API / Frontend Variable),اسم الحقل المتوقع في Frappe (SS Lab Equipment Field),نوع البيانات (Data Type),إجباري؟ (Required),القيم المسموحة / ملاحظات هامة,الوصف بالعربية,مثال 1 (Cobas 6000),مثال 2 (Sysmex XN-1000)
+id,name / equipment_id,String,نعم,معرف فريد بدون مسافات (يُستخدم في الرابط /equipment/[id]),المعرف الفريد للجهاز,cobas-6000,sysmex-xn-1000
+category,category,Select / String,نعم,"القيم المسموحة فقط: chemistry | hematology | immunology | molecular (لأن الترجمة تعتمد عليها)",تصنيف الجهاز المخبري,chemistry,hematology
+status,status,Select / String,نعم,"القيم المسموحة فقط: online | maintenance | offline",الحالة التشغيلية للجهاز,online,online
+accuracy,accuracy,Float / Number,نعم,رقم من 0 إلى 100 (يُعرض في عداد الدقة الدائري %),نسبة الدقة المئوية,99.9,99.8
+image,image,Attach Image / URL,نعم,رابط الصورة الكامل أو مسار ملف Frappe,صورة الجهاز,https://newlabadmin.simsaarsoft.com/files/cobas-6000.png,https://newlabadmin.simsaarsoft.com/files/sysmex-xn1000.png
+name,name_en / equipment_name_en,Data (String),نعم,نص إنجليزي,اسم الجهاز بالإنجليزية,Cobas 6000,Sysmex XN-1000
+nameAr,name_ar / equipment_name_ar,Data (String),نعم,نص عربي,اسم الجهاز بالعربية,كوباس 6000,سيسمكس XN-1000
+manufacturer,manufacturer_en / manufacturer,Data (String),نعم,نص إنجليزي,الشركة المصنعة بالإنجليزية,Roche Diagnostics,Sysmex Corporation
+manufacturerAr,manufacturer_ar,Data (String),نعم,نص عربي,الشركة المصنعة بالعربية,روش للتشخيص (Roche),شركة سيسمكس (Sysmex)
+speed,speed_en / speed,Number / String,نعم,"رقم فقط (يمثل سرعة الإنجاز بالساعة، ويقوم الموقع بإضافة ""/ hr"" تلقائياً)",سرعة الإنجاز بالساعة (رقم فقط),1000,100
+speedAr,speed_ar,Number / String,نعم,"رقم فقط (يمثل سرعة الإنجاز بالساعة، ويقوم الموقع بإضافة ""بالساعة"" تلقائياً)",سرعة الإنجاز بالساعة (رقم فقط),1000,100
+description,description_en / description,Small Text / Text,نعم,نص إنجليزي يشرح وظيفة الجهاز,وصف الجهاز بالإنجليزية,"A fully automated analyzer system for clinical chemistry and immunoassay testing. Designed for high workloads, it ensures rapid turnaround times with uncompromised precision.","Flagship hematology analyzer utilizing fluorescent flow cytometry. It provides deeper insights into hematological disorders with advanced parameters for platelets and reticulocytes."
+descriptionAr,description_ar,Small Text / Text,نعم,نص عربي يشرح وظيفة الجهاز,وصف الجهاز بالعربية,"نظام تحليل آلي بالكامل للكيمياء السريرية والمقايسة المناعية. مصمم لأحمال العمل العالية، ويضمن أوقات استجابة سريعة مع دقة لا تضاهى.","محلل أمراض الدم الرائد الذي يستخدم قياس التدفق الخلوي الفلوري. يوفر رؤى أعمق حول اضطرابات الدم مع معلمات متقدمة للصفائح الدموية والخلايا الشبكية."
+features,features_en / features,Array<String> (أو Child Table / JSON),نعم,مصفوفة نصوص إنجليزية لمميزات الجهاز,المميزات التقنية بالإنجليزية,"[""Clot detection"", ""Liquid level detection"", ""Automated rerun"", ""Contact-free ultrasonic mixing""]","[""Fluorescent Flow Cytometry"", ""Low aspiration volume"", ""Body fluid mode"", ""PLT-F channel for low platelet counts""]"
+featuresAr,features_ar,Array<String> (أو Child Table / JSON),نعم,مصفوفة نصوص عربية لمميزات الجهاز,المميزات التقنية بالعربية,"[""كشف التجلط"", ""كشف مستوى السائل"", ""إعادة التشغيل الآلي"", ""خلط بالموجات فوق الصوتية بدون تلامس""]","[""قياس التدفق الخلوي الفلوري"", ""حجم شفط منخفض"", ""وضع سوائل الجسم"", ""قناة PLT-F لتعداد الصفائح المنخفض""]"
+relatedTests,related_tests_en / related_tests,Array<String> (أو Child Table / JSON),نعم,مصفوفة نصوص إنجليزية للفحوصات المرتبطة,الفحوصات المرتبطة بالإنجليزية,"[""Lipid Profile"", ""Liver Functions"", ""Kidney Functions"", ""Hormones""]","[""CBC"", ""Malaria Screening"", ""Reticulocytes"", ""Body Fluids""]"
+relatedTestsAr,related_tests_ar,Array<String> (أو Child Table / JSON),نعم,مصفوفة نصوص عربية للفحوصات المرتبطة,الفحوصات المرتبطة بالعربية,"[""دهون الدم"", ""وظائف الكبد"", ""وظائف الكلى"", ""الهرمونات""]","[""صورة الدم الكاملة"", ""فحص الملاريا"", ""الخلايا الشبكية"", ""سوائل الجسم""]"
+

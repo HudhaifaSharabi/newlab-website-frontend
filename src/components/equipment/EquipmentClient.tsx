@@ -111,7 +111,11 @@ export default function EquipmentClient({ initialEquipment }: EquipmentClientPro
                 
                 <div className="mb-6 flex flex-wrap gap-2">
                   <span className="flex items-center gap-1 rounded bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600 dark:bg-slate-700 dark:text-slate-300">
-                    <Zap className="h-3 w-3" /> {isRTL ? item.speedAr : item.speed}
+                    <Zap className="h-3 w-3" />{" "}
+                    {(() => {
+                      const rawSpeed = String((isRTL ? item.speedAr || item.speed : item.speed || item.speedAr) ?? "").trim();
+                      return /^\d+(\.\d+)?$/.test(rawSpeed) ? `${rawSpeed} ${t("specs.speedUnit")}` : rawSpeed;
+                    })()}
                   </span>
                   <span className="flex items-center gap-1 rounded bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600 dark:bg-slate-700 dark:text-slate-300">
                     <Activity className="h-3 w-3" /> {item.accuracy}% Acc.

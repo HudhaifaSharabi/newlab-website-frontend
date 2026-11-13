@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 /**
  * Proxy route for fetching chat centers/contacts from Frappe.
  * Includes server-side HTTP cache control headers to improve website speed.
@@ -13,6 +15,7 @@ export async function GET(request: NextRequest) {
         try {
           return await fetch(apiUrl, {
             method: "GET",
+            cache: "no-store",
             headers: {
               "Accept": "application/json",
               "Cookie": request.headers.get("cookie") ?? "",

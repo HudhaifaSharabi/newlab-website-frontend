@@ -224,6 +224,21 @@ export default function HeroWithAbout({
   const aboutRef = useRef<HTMLElement | null>(null);
   const cardRefs = useRef<HTMLDivElement[]>([]);
   const imageRefs = useRef<HTMLDivElement[]>([]);
+  const [failedCardImages, setFailedCardImages] = useState<Record<number, number>>({});
+  const fallbackCardImages = ["/lap7.webp", "/lap6.jpg", "/lap3.jpg", "/lap5.jpg"];
+
+  const resolveCardImage = (rawSrc: string | undefined, idx: number) => {
+    const failCount = failedCardImages[idx] || 0;
+    const fallback = fallbackCardImages[idx % fallbackCardImages.length];
+    if (!rawSrc || failCount >= 2) return fallback;
+    if (failCount === 1) {
+      if (rawSrc.startsWith("/files/") && process.env.NEXT_PUBLIC_API_URL) {
+        return `${process.env.NEXT_PUBLIC_API_URL}${rawSrc}`;
+      }
+      return fallback;
+    }
+    return rawSrc;
+  };
 
   /* =========================
      IMAGE ROTATION
@@ -321,36 +336,102 @@ export default function HeroWithAbout({
       });
 
       function setupAboutAnimation(startPosition = "top top") {
-        /* Set initial states */
-        cardRefs.current.forEach((card, i) => {
+        const validCards = cardRefs.current.slice(0, aboutCards.length).filter(Boolean);
+        const validImages = imageRefs.current.slice(0, aboutCards.length).filter(Boolean);
+        if (validCards.length === 0) return;
+
+        /* Set initial states — only first card is visible to prevent text ghosting/bleeding */
+        validCards.forEach((card, i) => {
           gsap.set(card, {
-            y: i * 18,
-            scale: 1 - i * 0.04,
-            zIndex: 10 - i,
+            y: i === 0 ? 0 : 36,
+            scale: i === 0 ? 1 : 0.96,
+            opacity: i === 0 ? 1 : 0,
+            zIndex: i === 0 ? 20 : 10 - i,
+            pointerEvents: i === 0 ? "auto" : "none",
           });
         });
 
-        imageRefs.current.forEach((img, i) => {
-          gsap.set(img, { opacity: i === 0 ? 1 : 0 });
+        validImages.forEach((img, i) => {
+          gsap.set(img, {
+            opacity: i === 0 ? 1 : 0,
+            scale: i === 0 ? 1 : 1.05,
+            zIndex: i === 0 ? 20 : 10 - i,
+          });
         });
 
-        const scrollDistance = Math.max(1, aboutCards.length - 1) * 85;
+        if (aboutCards.length <= 1) return;
+
+        const scrollDistance = Math.max(1, aboutCards.length - 1) * 90;
 
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: aboutRef.current,
             start: startPosition,
             end: `+=${scrollDistance}%`,
-            scrub: true,
+            scrub: 0.6,
             pin: true,
           },
         });
 
         aboutCards.forEach((_, i) => {
           if (i === aboutCards.length - 1) return;
-          tl.to(cardRefs.current[i], { y: -160, opacity: 0 }, i)
-            .to(imageRefs.current[i], { opacity: 0 }, i)
-            .to(imageRefs.current[i + 1], { opacity: 1 }, i);
+          const currentCard = validCards[i];
+          const nextCard = validCards[i + 1];
+          const currentImg = validImages[i];
+          const nextImg = validImages[i + 1];
+
+          if (currentCard) {
+            tl.to(
+              currentCard,
+              {
+                y: -36,
+                opacity: 0,
+                scale: 0.97,
+                pointerEvents: "none",
+                duration: 0.45,
+                ease: "power2.inOut",
+              },
+              i,
+            );
+          }
+
+          if (nextCard) {
+            tl.to(
+              nextCard,
+              {
+                y: 0,
+                opacity: 1,
+                scale: 1,
+                zIndex: 20 + i + 1,
+                pointerEvents: "auto",
+                duration: 0.5,
+                ease: "power2.out",
+              },
+              i + 0.35,
+            );
+          }
+
+          if (currentImg) {
+            tl.to(
+              currentImg,
+              { opacity: 0, scale: 0.98, duration: 0.5, ease: "power2.inOut" },
+              i + 0.1,
+            );
+          }
+
+          if (nextImg) {
+            tl.to(
+              nextImg,
+              {
+                opacity: 1,
+                scale: 1,
+                zIndex: 20 + i + 1,
+                duration: 0.55,
+                ease: "power2.out",
+              },
+              i + 0.2,
+            );
+          }
         });
       }
     },
@@ -707,16 +788,17 @@ export default function HeroWithAbout({
       {/* ================= ABOUT / من نحن ================= */}
       <section
         ref={aboutRef}
-        className="relative pt-20 min-h-screen overflow-hidden bg-white text-slate-900 dark:bg-[#020617] dark:text-white  "
+        dir={isRTL ? "rtl" : "ltr"}
+        className="relative flex min-h-[100svh] flex-col justify-center overflow-hidden bg-white pt-20 pb-16 text-slate-900 lg:pt-24 lg:pb-24 dark:bg-[#020617] dark:text-white"
       >
         {/* ===== DEPTH / SIGNATURE BACKGROUND ===== */}
         <div className="pointer-events-none absolute inset-0 -z-10">
           {/* Base */}
-          <div className="absolute inset-0 bg-gradient-to-b from-white via-slate-50 to-white dark:from-[#020617] dark:via-[#020617] dark:to-black" />
+          <div className="absolute inset-0 bg-gradient-to-b from-white via-slate-50 to-white dark:from-[#020617] dark:via-[#060d1f] dark:to-[#020617]" />
 
-          {/* Authority grid (more visible) */}
+          {/* Authority grid */}
           <div
-            className="absolute inset-0 opacity-[0.40] dark:opacity-[0.14] "
+            className="absolute inset-0 opacity-[0.35] dark:opacity-[0.12]"
             style={{
               backgroundImage:
                 "linear-gradient(to right, rgba(15,23,42,0.10) 1px, transparent 1px), linear-gradient(to bottom, rgba(15,23,42,0.10) 1px, transparent 1px)",
@@ -724,16 +806,16 @@ export default function HeroWithAbout({
             }}
           />
           <div
-            className="absolute inset-0 opacity-[0.06] dark:opacity-[0.08]"
+            className="absolute inset-0 opacity-[0.06] dark:opacity-[0.10]"
             style={{
               backgroundImage:
-                "radial-gradient(circle at 20% 30%, rgba(168,37,43,0.14), transparent 55%), radial-gradient(circle at 80% 65%, rgba(26,101,141,0.14), transparent 55%)",
+                "radial-gradient(circle at 20% 30%, rgba(168,37,43,0.16), transparent 55%), radial-gradient(circle at 80% 65%, rgba(26,101,141,0.18), transparent 55%)",
             }}
           />
 
-          {/* Ambient glows (tighter + more controlled) */}
-          <div className="absolute left-[-12%] top-[8%] h-[520px] w-[520px] rounded-full bg-[#1a658d]/5 blur-[190px] dark:bg-[#1a658d]/5" />
-          <div className="absolute right-[-10%] bottom-[10%] h-[520px] w-[520px] rounded-full bg-[#b9292f]/5 blur-[200px] dark:bg-[#b9292f]/5" />
+          {/* Ambient glows */}
+          <div className="absolute left-[-12%] top-[8%] h-[520px] w-[520px] rounded-full bg-[#1a658d]/5 blur-[190px] dark:bg-[#1a658d]/10" />
+          <div className="absolute right-[-10%] bottom-[10%] h-[520px] w-[520px] rounded-full bg-[#b9292f]/5 blur-[200px] dark:bg-[#b9292f]/10" />
 
           {/* Center depth */}
           <div className="absolute left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-slate-200/70 blur-[240px] dark:bg-white/5" />
@@ -749,142 +831,193 @@ export default function HeroWithAbout({
         </div>
 
         {/* ===== CONTENT ===== */}
-        <div className="relative mx-auto max-w-7xl px-6  lg:pb-12  -pb-10 ">
-          {/* ===== Visual Anchor ===== */}
-          <div className="mb-6 flex items-center gap-4">
-            <span className="h-px w-16 bg-gradient-to-l from-transparent to-[#1a658d]" />
-            <span className="inline-flex items-center gap-2 rounded-full border border-[#1a658d]/20 bg-[#1a658d]/5 px-4 py-2 text-[11px] font-semibold tracking-[0.22em] text-[#1a658d] backdrop-blur dark:border-[#1a658d]/30 dark:bg-[#1a658d]/10 dark:text-[#1a658d]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#1a658d]" />
-              {isRTL ? aboutContent.badge_ar : aboutContent.badge_en}
-            </span>
-          </div>
-
+        <div className="relative mx-auto w-full max-w-7xl px-6 lg:px-8">
           {/* ===== Header ===== */}
-          <div className="mb-8 max-w-2xl">
-            <h2 className="text-4xl font-black leading-tight bg-gradient-to-r from-[#1a658d] to-[#b9292f] bg-clip-text text-transparent">
+          <div className="mb-6 lg:mb-8 max-w-3xl">
+            <div className="mb-3 flex items-center gap-3">
+              <span className="inline-flex items-center gap-2 rounded-full border border-[#1a658d]/25 bg-[#1a658d]/10 px-4 py-1.5 text-xs font-bold tracking-wider text-[#1a658d] backdrop-blur dark:border-sky-400/30 dark:bg-sky-500/10 dark:text-sky-300">
+                <span className="h-2 w-2 rounded-full bg-[#b9292f]" />
+                {isRTL ? aboutContent.badge_ar : aboutContent.badge_en}
+              </span>
+              <span className="h-px w-14 bg-gradient-to-r from-[#1a658d]/60 to-transparent dark:from-sky-400/50" />
+            </div>
+
+            <h2 className="text-3xl font-black leading-tight sm:text-4xl lg:text-[40px] bg-gradient-to-r from-[#1a658d] via-[#257ca8] to-[#b9292f] dark:from-sky-300 dark:via-white dark:to-[#ef4444] bg-clip-text text-transparent">
               {isRTL ? aboutContent.title_ar : aboutContent.title_en}
             </h2>
 
-            <p className="mt-6 text-slate-600 leading-relaxed dark:text-white/70">
+            <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed dark:text-slate-300/85">
               {isRTL ? aboutContent.description_ar : aboutContent.description_en}
             </p>
-
-           
           </div>
 
           {/* ===== Cards + Visual ===== */}
-          <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
+          <div className="grid grid-cols-1 items-center gap-6 lg:grid-cols-12 lg:gap-8">
             {/* ===== Cards Stack ===== */}
-            <div className="relative h-[600px] lg:h-[420px]">
-              {aboutCards.map((c, i) => (
-                <div
-                  key={c.title_en + i}
-                  ref={(el) => {
-                    if (el) cardRefs.current[i] = el;
-                  }}
-                  className="
-              absolute inset-0 rounded-[28px]
-              border border-slate-100
-              bg-white
-              shadow-lg
-              hover:shadow-[0_16px_48px_rgba(26,101,141,0.20)]
-              p-6 lg:p-10
-              transition-all
-              duration-300
-              hover:-translate-y-[5px]
-              dark:border-slate-700/50
-              dark:bg-slate-800/95
-              dark:shadow-[0_12px_40px_rgba(26,101,141,0.15)]
-              dark:hover:shadow-[0_18px_52px_rgba(26,101,141,0.25)]
-            "
-                >
-                  {/* Mobile Image */}
-                  <div className="relative mb-6 h-48 w-full overflow-hidden rounded-2xl lg:hidden">
-                    <Image
-                      src={c.image}
-                      alt={isRTL ? c.title_ar : c.title_en}
-                      fill
-                      className="object-cover"
+            <div className="relative h-[460px] sm:h-[400px] lg:col-span-6 lg:h-[360px]">
+              {aboutCards.map((c, i) => {
+                const imgSrc = resolveCardImage(c.image, i);
+
+                return (
+                  <div
+                    key={c.title_en + i}
+                    ref={(el) => {
+                      if (el) cardRefs.current[i] = el;
+                    }}
+                    className="
+                      absolute inset-0 flex flex-col justify-between overflow-hidden rounded-[26px]
+                      border border-slate-200/90
+                      bg-white
+                      shadow-[0_14px_40px_rgba(15,23,42,0.08)]
+                      hover:shadow-[0_20px_50px_rgba(26,101,141,0.18)]
+                      p-6 sm:p-8
+                      transition-shadow
+                      duration-300
+                      dark:border-slate-800
+                      dark:bg-[#0f172a]
+                      dark:shadow-[0_16px_44px_rgba(0,0,0,0.45)]
+                      dark:hover:shadow-[0_20px_54px_rgba(26,101,141,0.25)]
+                    "
+                  >
+                    {/* Top line accent */}
+                    <div
+                      className={`absolute inset-x-0 top-0 h-[3px] ${
+                        isRTL
+                          ? "bg-gradient-to-l from-[#b9292f] via-[#1a658d] to-transparent"
+                          : "bg-gradient-to-r from-[#b9292f] via-[#1a658d] to-transparent"
+                      }`}
                     />
+
+                    <div>
+                      {/* Mobile Image */}
+                      <div className="relative mb-4 h-40 w-full overflow-hidden rounded-2xl lg:hidden">
+                        <Image
+                          src={imgSrc}
+                          alt={(isRTL ? c.title_ar : c.title_en) || "NewLab"}
+                          fill
+                          className="object-cover"
+                          onError={() =>
+                            setFailedCardImages((prev) => ({
+                              ...prev,
+                              [i]: (prev[i] || 0) + 1,
+                            }))
+                          }
+                        />
+                      </div>
+
+                      {/* Tag + Step Counter */}
+                      <div className="flex items-center justify-between gap-4">
+                        <span className="inline-flex items-center gap-2 rounded-full bg-[#b9292f]/10 px-3 py-1 text-xs font-bold tracking-wide text-[#b9292f] dark:bg-[#b9292f]/15 dark:text-red-400">
+                          <span className="h-1.5 w-1.5 rounded-full bg-[#b9292f] dark:bg-red-400" />
+                          {isRTL ? c.tag_ar : c.tag_en}
+                        </span>
+
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1.5">
+                            {aboutCards.map((_, dotIdx) => (
+                              <span
+                                key={dotIdx}
+                                className={`h-1.5 rounded-full transition-all ${
+                                  dotIdx === i
+                                    ? "w-5 bg-[#b9292f]"
+                                    : "w-1.5 bg-slate-300 dark:bg-slate-700"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          <span className="font-mono text-xs font-bold text-slate-400 dark:text-slate-500">
+                            0{i + 1}/0{aboutCards.length}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Divider */}
+                      <div
+                        className={`my-4 h-px w-16 ${
+                          isRTL
+                            ? "bg-gradient-to-l from-[#1a658d] to-transparent dark:from-sky-400"
+                            : "bg-gradient-to-r from-[#1a658d] to-transparent dark:from-sky-400"
+                        }`}
+                      />
+
+                      {/* Title */}
+                      <h3 className="text-xl sm:text-2xl font-black leading-snug text-slate-900 dark:text-white">
+                        {isRTL ? c.title_ar : c.title_en}
+                      </h3>
+
+                      {/* Body */}
+                      <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed dark:text-slate-300 line-clamp-3">
+                        {isRTL ? c.description_ar : c.description_en}
+                      </p>
+                    </div>
+
+                    {/* Chips (system feel) */}
+                    <div className="mt-5 flex flex-wrap gap-2 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+                      {(isRTL ? c.badges_ar : c.badges_en)?.map((t) => (
+                        <span
+                          key={t}
+                          className="rounded-full border border-[#1a658d]/20 bg-[#1a658d]/5 px-3.5 py-1 text-xs font-semibold text-[#1a658d] dark:border-sky-400/25 dark:bg-sky-500/10 dark:text-sky-300"
+                        >
+                          {t}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                  {/* Top line accent */}
-                  <div className="absolute left-0 top-0 h-[3px] w-full bg-gradient-to-r from-[#b9292f] via-[#1a658d] to-transparent opacity-80" />
-
-                  {/* Tag */}
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="text-xs font-semibold tracking-widest text-[#b9292f] uppercase dark:text-[#b9292f]">
-                      {isRTL ? c.tag_ar : c.tag_en}
-                    </span>
-
-                   
-                  </div>
-
-                  {/* Divider */}
-                  <div className="my-6 h-px w-16 bg-gradient-to-r from-[#1a658d] to-transparent" />
-
-                  {/* Title */}
-                  <h3 className="text-2xl font-black leading-snug text-slate-900 dark:text-white">
-                    {isRTL ? c.title_ar : c.title_en}
-                  </h3>
-
-                  {/* Body */}
-                  <p className="mt-6 max-w-md text-slate-600 leading-relaxed dark:text-slate-300">
-                    {isRTL ? c.description_ar : c.description_en}
-                  </p>
-
-                  {/* Chips (system feel) */}
-                  <div className="mt-8 flex flex-wrap gap-2">
-                    {(isRTL ? c.badges_ar : c.badges_en).map((t) => (
-                      <span
-                        key={t}
-                        className="rounded-full border border-[#1a658d]/10 bg-[#1a658d]/5 px-3 py-1 text-[11px] font-semibold text-[#1a658d] dark:border-[#1a658d]/30 dark:bg-[#1a658d]/10 dark:text-[#1a658d]"
-                      >
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* Bottom micro line */}
-                 
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* ===== Image Stack / Console Frame ===== */}
-            <div className="relative hidden h-[420px] lg:block">
-              {aboutCards.map((c, i) => (
-                <div
-                  key={c.image + i}
-                  ref={(el) => {
-                    if (el) imageRefs.current[i] = el;
-                  }}
-                  className="absolute inset-0 overflow-hidden rounded-[28px] border border-slate-200/80 bg-black/5 dark:border-white/10"
-                >
-                  <Image
-                    src={c.image}
-                    alt={isRTL ? c.title_ar : c.title_en}
-                    fill
-                    className="object-cover"
-                  />
+            <div className="relative hidden h-[360px] lg:col-span-6 lg:block">
+              {aboutCards.map((c, i) => {
+                const imgSrc = resolveCardImage(c.image, i);
 
-                  {/* Console overlays */}
-                  <div className="pointer-events-none absolute inset-0">
-                    {/* vignette */}
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.25)_70%,rgba(0,0,0,0.60)_100%)] opacity-25 dark:opacity-45" />
-                    {/* ring */}
-                    <div className="absolute inset-0 ring-1 ring-inset ring-white/15 dark:ring-white/10" />
-                    {/* corner ticks */}
-                    <div className="absolute left-4 top-4 h-6 w-6 border-l border-t border-white/30 dark:border-white/20" />
-                    <div className="absolute right-4 top-4 h-6 w-6 border-r border-t border-white/30 dark:border-white/20" />
-                    <div className="absolute left-4 bottom-4 h-6 w-6 border-l border-b border-white/30 dark:border-white/20" />
-                    <div className="absolute right-4 bottom-4 h-6 w-6 border-r border-b border-white/30 dark:border-white/20" />
+                return (
+                  <div
+                    key={c.image + i}
+                    ref={(el) => {
+                      if (el) imageRefs.current[i] = el;
+                    }}
+                    className="absolute inset-0 overflow-hidden rounded-[26px] border border-slate-200/80 bg-slate-900 shadow-[0_16px_44px_rgba(0,0,0,0.3)] dark:border-slate-800"
+                  >
+                    <Image
+                      src={imgSrc}
+                      alt={(isRTL ? c.title_ar : c.title_en) || "NewLab"}
+                      fill
+                      className="object-cover"
+                      onError={() =>
+                        setFailedCardImages((prev) => ({
+                          ...prev,
+                          [i]: (prev[i] || 0) + 1,
+                        }))
+                      }
+                    />
 
-                    {/* Small HUD */}
-                    
-                   
+                    {/* Console overlays */}
+                    <div className="pointer-events-none absolute inset-0">
+                      {/* vignette */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
+                      {/* ring */}
+                      <div className="absolute inset-0 ring-1 ring-inset ring-white/15 dark:ring-white/10 rounded-[26px]" />
+                      {/* corner ticks */}
+                      <div className="absolute left-4 top-4 h-5 w-5 border-l-2 border-t-2 border-white/40 rounded-tl-md" />
+                      <div className="absolute right-4 top-4 h-5 w-5 border-r-2 border-t-2 border-white/40 rounded-tr-md" />
+                      <div className="absolute left-4 bottom-4 h-5 w-5 border-l-2 border-b-2 border-white/40 rounded-bl-md" />
+                      <div className="absolute right-4 bottom-4 h-5 w-5 border-r-2 border-b-2 border-white/40 rounded-br-md" />
+
+                      {/* Caption overlay at bottom of image */}
+                      <div className="absolute bottom-5 inset-x-6 flex items-center justify-between text-white">
+                        <span className="text-xs font-bold tracking-wider uppercase bg-white/15 backdrop-blur-md px-3 py-1 rounded-full border border-white/20">
+                          {isRTL ? c.tag_ar : c.tag_en}
+                        </span>
+                        <span className="font-mono text-xs text-white/75">
+                          0{i + 1} / 0{aboutCards.length}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>

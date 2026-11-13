@@ -216,8 +216,8 @@ export interface EquipmentItemData {
   nameAr: string;
   manufacturer: string;
   manufacturerAr: string;
-  speed: string;
-  speedAr: string;
+  speed: string | number;
+  speedAr: string | number;
   description: string;
   descriptionAr: string;
   features: string[];

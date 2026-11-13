@@ -110,7 +110,7 @@ export default function EquipmentDetailClient({ device }: EquipmentDetailClientP
                     />
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-white">
-                    {(isRTL ? device.speedAr : device.speed).split(' ')[0]}
+                    {String((isRTL ? device.speedAr || device.speed : device.speed || device.speedAr) ?? "").split(' ')[0]}
                   </div>
                 </div>
                 <div className="text-xs text-white">{t("specs.speed")}</div>

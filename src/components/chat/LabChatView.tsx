@@ -195,14 +195,14 @@ const fetchContacts = useCallback(async (isPolling = false) => {
       if (Array.isArray(rawList) && rawList.length > 0) {
         const now = Date.now();
         const mapped = rawList.map((item: any, idx: number) => {
-          const cid = String(item.user_id || item.id || idx);
+          const cid = String(item.user_id || item.id || item.name || item.contact_id || item.email || idx);
           const centerName = item.center_name || item.name || "مركز طبي";
           const suppressUntil = suppressUnreadUntil.current.get(cid) || 0;
           
           const isActiveContact = activeContactRef.current?.id === cid;
           const unreadNum = isActiveContact ? 0 : (now < suppressUntil ? 0 : Number(item.unread_count || item.unread || 0));
           
-          const lastMsgText = item.last_message || "";
+          const lastMsgText = item.last_message || item.message_text || item.text || "";
           
           const rawTime = item.last_message_time || item.updated_at || item.modified || item.creation || item.time;
           const timeFormatted = formatContactTime(rawTime);
@@ -283,23 +283,29 @@ const fetchMessages = useCallback(async (contactId : string) => {
         return Date.now();
       };
 
-      const mapped = rawList.map((item) => {
-        const isSenderContact = String(item.sender_id || "").toLowerCase() === contactId.toLowerCase();
+      const mapped = rawList.map((item, idx) => {
+        const sender = String(item.sender_id || item.sender || "");
+        const isSenderContact = sender.toLowerCase() === contactId.toLowerCase();
         const rawTime = item.created_at || item.creation || item.modified || item.updated_at || item.time;
         const rawTimestamp = parseTimestampSafe(rawTime);
+        const attUrl = item.attachment_url || item.file_url || item.attachment || item.url || item.file_path || "";
+        const fName = item.file_name || item.filename || item.name_of_file || (attUrl ? attUrl.split('/').pop() : "") || "";
+        const fSize = item.file_size || item.filesize || item.size || "";
+        const repName = item.result_link || item.report_name || item.result_name || item.report || "";
+        
         return {
-          id: String(item.id),
-          text: item.message_text || "",
-          time: item.created_at ? new Date(item.created_at).toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" }) : "",
+          id: String(item.id || item.name || `${Date.now()}-${idx}`),
+          text: item.message_text || item.text || item.message || item.content || "",
+          time: rawTime ? new Date(rawTime).toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" }) : "الآن",
           rawTimestamp,
           isOutgoing: !isSenderContact,
-          isUrgent: Boolean(item.is_urgent),
-          status: (Number(item.is_read) === 1) ? "read" : "sent",
-          fileName: item.file_name || "",
-          fileSize: item.file_size || "",
-          isPdf: Boolean(item.result_link || item.report_name || item.result_name) || (item.file_name && item.file_name.toLowerCase().endsWith('.pdf')) || (item.attachment_url ? item.attachment_url.toLowerCase().endsWith('.pdf') : false),
-          attachmentUrl: item.attachment_url || (item.file_name ? `/files/${item.file_name}` : ""),
-          reportName: item.result_link || item.report_name || item.result_name || ""
+          isUrgent: Boolean(item.is_urgent || item.is_urgent === 1),
+          status: (item.is_read || item.is_read === 1 || String(item.is_read) === "1" || item.read === 1 || item.status === "read") ? "read" : "sent",
+          fileName: fName,
+          fileSize: fSize,
+          isPdf: Boolean(repName) || (fName && fName.toLowerCase().endsWith('.pdf')) || (attUrl ? attUrl.toLowerCase().endsWith('.pdf') : false),
+          attachmentUrl: attUrl || (fName ? `/files/${fName}` : ""),
+          reportName: repName
         };
       });
 

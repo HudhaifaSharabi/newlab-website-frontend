@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const contactId = searchParams.get("contact_id") || "";
@@ -20,6 +22,7 @@ export async function GET(request: NextRequest) {
         try {
           return await fetch(apiUrl, {
             method: "GET",
+            cache: "no-store",
             headers: {
               "Accept": "application/json",
               "Cookie": request.headers.get("cookie") ?? "",
@@ -46,6 +49,10 @@ export async function GET(request: NextRequest) {
     }
 
     const data = await backendRes.json();
+    console.log(`[API chat-messages] Fetched for contact_id=${contactId}. Result length:`, data?.message?.length || data?.data?.length || (Array.isArray(data) ? data.length : "unknown"));
+    if (contactId.includes("770698779")) {
+      console.log(`[API chat-messages] Data snippet for ${contactId}:`, JSON.stringify(data).substring(0, 500));
+    }
     const response = NextResponse.json(data, { status: backendRes.status });
     response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
 
