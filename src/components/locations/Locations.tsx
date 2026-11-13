@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from "@react-google-maps/api";
 import { MapPin, Phone, ExternalLink, Navigation, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -54,6 +54,7 @@ export function Locations({ locationsData }: { locationsData?: LocationsData }) 
   
   const [selectedBranchId, setSelectedBranchId] = useState<number | null>(null);
   const [hoveredBranchId, setHoveredBranchId] = useState<number | null>(null);
+  const mapRef = useRef<google.maps.Map | null>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && window.location.hash === '#branches') {
@@ -66,15 +67,19 @@ export function Locations({ locationsData }: { locationsData?: LocationsData }) 
     }
   }, []);
 
-  const branches: Branch[] = locationsData?.branches?.map(b => ({
-    id: b.id,
-    name: isRTL ? b.name_ar : b.name_en,
-    address: isRTL ? b.address_ar : b.address_en,
-    phone: b.phone,
-    lat: b.lat,
-    lng: b.lng,
-    type: b.isMain ? "main" : "branch"
-  })) || [];
+  const branches: Branch[] = useMemo(
+    () =>
+      locationsData?.branches?.map((b) => ({
+        id: b.id,
+        name: isRTL ? b.name_ar : b.name_en,
+        address: isRTL ? b.address_ar : b.address_en,
+        phone: b.phone,
+        lat: Number(b.lat),
+        lng: Number(b.lng),
+        type: b.isMain ? "main" : "branch",
+      })) || [],
+    [locationsData?.branches, isRTL]
+  );
 
   const { isLoaded } = useJsApiLoader({
     id: MAPS_SCRIPT_ID,
@@ -82,13 +87,71 @@ export function Locations({ locationsData }: { locationsData?: LocationsData }) 
     libraries: ["geometry", "drawing", "places"],
   });
 
-  const mapCenter = branches.length > 0 ? {
-    lat: branches[0].lat,
-    lng: branches[0].lng,
-  } : {
+  const defaultCenter = {
     lat: 15.3694,
     lng: 44.1910, // Sana'a coordinates
   };
+
+  const fitAllBranches = useCallback(
+    (mapInstance?: google.maps.Map | null) => {
+      const map = mapInstance || mapRef.current;
+      if (!map || typeof window === "undefined" || !window.google?.maps) return;
+
+      const validBranches = branches.filter(
+        (b) => typeof b.lat === "number" && !isNaN(b.lat) && typeof b.lng === "number" && !isNaN(b.lng)
+      );
+
+      if (validBranches.length === 0) {
+        map.setCenter(defaultCenter);
+        map.setZoom(13);
+        return;
+      }
+
+      if (validBranches.length === 1) {
+        map.panTo({ lat: validBranches[0].lat, lng: validBranches[0].lng });
+        map.setZoom(15);
+        return;
+      }
+
+      const bounds = new window.google.maps.LatLngBounds();
+      validBranches.forEach((b) => {
+        bounds.extend({ lat: b.lat, lng: b.lng });
+      });
+
+      map.fitBounds(bounds, { top: 80, right: 60, bottom: 50, left: 60 });
+
+      // Prevent over-zooming when pins are very close to each other
+      const listener = window.google.maps.event.addListenerOnce(map, "idle", () => {
+        const currentZoom = map.getZoom();
+        if (currentZoom && currentZoom > 16) {
+          map.setZoom(16);
+        }
+      });
+      return () => window.google.maps.event.removeListener(listener);
+    },
+    [branches]
+  );
+
+  // Re-fit bounds when branches data changes
+  useEffect(() => {
+    if (isLoaded && mapRef.current && selectedBranchId === null) {
+      fitAllBranches(mapRef.current);
+    }
+  }, [isLoaded, branches.length, selectedBranchId, fitAllBranches]);
+
+  // Focus on selected branch when clicked from list or pin
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || selectedBranchId === null) return;
+    const target = branches.find((b) => b.id === selectedBranchId);
+    if (!target) return;
+
+    map.panTo({ lat: target.lat, lng: target.lng });
+    const currentZoom = map.getZoom() || 13;
+    if (currentZoom < 15) {
+      map.setZoom(15);
+    }
+  }, [selectedBranchId, branches]);
 
   const mapOptions = {
     disableDefaultUI: false,
@@ -160,8 +223,13 @@ export function Locations({ locationsData }: { locationsData?: LocationsData }) 
                       width: "100%",
                       height: "100%",
                     }}
-                    center={mapCenter}
-                    zoom={13}
+                    onLoad={(map) => {
+                      mapRef.current = map;
+                      fitAllBranches(map);
+                    }}
+                    onUnmount={() => {
+                      mapRef.current = null;
+                    }}
                     options={mapOptions}
                   >
                     {branches.map((branch) => (
