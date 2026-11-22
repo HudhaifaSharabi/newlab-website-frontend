@@ -91,7 +91,7 @@ export default function OurStory({ data, founder }: OurStoryProps) {
     <section ref={containerRef} className="bg-slate-50 dark:bg-slate-900 py-24 overflow-hidden">
       <div className="mx-auto max-w-7xl px-6 lg:px-8 space-y-20">
         <div className="grid gap-16 lg:grid-cols-2 lg:items-center">
-          
+
           {/* Left Column: Narrative */}
           <div className="order-2 lg:order-1">
             <h2 className="animate-text mb-2 text-3xl font-bold tracking-tight text-[#1a658d] dark:text-sky-400 sm:text-4xl">
@@ -243,11 +243,10 @@ export default function OurStory({ data, founder }: OurStoryProps) {
         {(founderQuote || founderName || founderImage) && (
           <div className="animate-text relative overflow-hidden rounded-3xl border border-slate-200/90 bg-white p-8 sm:p-10 lg:p-12 shadow-[0_16px_48px_rgba(15,23,42,0.08)] dark:border-slate-800 dark:bg-slate-800/90 dark:shadow-[0_16px_48px_rgba(0,0,0,0.4)]">
             <div
-              className={`absolute inset-x-0 top-0 h-1 ${
-                isRTL
+              className={`absolute inset-x-0 top-0 h-1 ${isRTL
                   ? "bg-gradient-to-l from-[#b9292f] via-[#1a658d] to-transparent"
                   : "bg-gradient-to-r from-[#b9292f] via-[#1a658d] to-transparent"
-              }`}
+                }`}
             />
 
             <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-12">
@@ -257,7 +256,7 @@ export default function OurStory({ data, founder }: OurStoryProps) {
                   <div className="relative h-64 w-64 sm:h-72 sm:w-72 overflow-hidden rounded-2xl border-2 border-[#1a658d]/20 shadow-xl bg-slate-100 dark:border-sky-400/20 dark:bg-slate-900">
                     <Image
                       src={founderImage}
-                      alt={founderName || "New Lab Supervisor"}
+                      alt={founderName || "General Director"}
                       fill
                       className="object-cover"
                       sizes="(max-width: 768px) 288px, 288px"
@@ -270,7 +269,7 @@ export default function OurStory({ data, founder }: OurStoryProps) {
               <div className={founderImage ? "lg:col-span-8" : "lg:col-span-12"}>
                 <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[#b9292f]/10 px-4 py-1.5 text-xs font-bold text-[#b9292f] dark:bg-[#b9292f]/20 dark:text-red-400">
                   <Quote className="h-4 w-4" />
-                  <span>{isRTL ? "كلمة المشرف العام" : "Supervisor's Message"}</span>
+                  <span>{isRTL ? "المدير العام" : "General Director"}</span>
                 </div>
 
                 {founderQuote && (
