@@ -110,19 +110,21 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
       <main>
         {/* Hero Section */}
         <section className="relative h-[400px] w-full overflow-hidden bg-[#1a658d] dark:bg-slate-800">
-          <Image
-            src={
-              aboutData.hero.image
-                ? aboutData.hero.image.startsWith("/files/") || aboutData.hero.image.startsWith("/private/files/")
+          {aboutData.hero.image ? (
+            <Image
+              src={
+                aboutData.hero.image.startsWith("/files/") || aboutData.hero.image.startsWith("/private/files/")
                   ? `${(process.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "")}${aboutData.hero.image}`
                   : aboutData.hero.image
-                : "/about-hero.jpg"
-            }
-            alt="New Lab Team"
-            fill
-            className="object-cover opacity-40"
-            priority
-          />
+              }
+              alt="New Lab Team"
+              fill
+              className="object-cover opacity-40"
+              priority
+            />
+          ) : (
+            <div className="absolute inset-0 bg-slate-300 dark:bg-slate-700 animate-pulse opacity-40" />
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/50 to-transparent" />
           
           <div className="absolute inset-0 flex items-center justify-center">

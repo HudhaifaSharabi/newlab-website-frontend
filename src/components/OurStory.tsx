@@ -43,10 +43,10 @@ export default function OurStory({ data, founder }: OurStoryProps) {
   const founderRole = isRTL
     ? founderData?.roleAr || founderData?.role_ar
     : founderData?.role || founderData?.role_en;
-  const founderImage = resolveImageUrl(founderData?.image) || "/dr-saleh-bahaj-1.jpg";
-  const img1 = resolveImageUrl(data.image1) || "/about-story-1.jpg";
-  const img2 = resolveImageUrl(data.image2) || "/about-story-2.jpg";
-  const img3 = resolveImageUrl(data.image3) || "/about-story-3.jpg";
+  const founderImage = resolveImageUrl(founderData?.image);
+  const img1 = resolveImageUrl(data.image1);
+  const img2 = resolveImageUrl(data.image2);
+  const img3 = resolveImageUrl(data.image3);
 
   const visionText = isRTL ? data.visionAr : data.vision;
   const missionText = isRTL ? data.missionAr : data.mission;
