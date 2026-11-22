@@ -356,6 +356,22 @@ export interface AboutPillarData {
   titleAr: string;
 }
 
+export interface AboutFounderData {
+  name?: string;
+  nameAr?: string;
+  name_en?: string;
+  name_ar?: string;
+  role?: string;
+  roleAr?: string;
+  role_en?: string;
+  role_ar?: string;
+  quote?: string;
+  quoteAr?: string;
+  quote_en?: string;
+  quote_ar?: string;
+  image?: string;
+}
+
 export interface AboutStoryData {
   headline: string;
   headlineAr: string;
@@ -363,14 +379,22 @@ export interface AboutStoryData {
   subheadlineAr: string;
   body: string;
   bodyAr: string;
+  vision?: string;
+  visionAr?: string;
+  mission?: string;
+  missionAr?: string;
+  highlights?: string;
+  highlightsAr?: string;
   pillars: AboutPillarData[];
   image1: string;
   image2: string;
   image3: string;
+  founder?: AboutFounderData;
 }
 
 export interface AboutValueData {
-  id: "accuracy" | "integrity" | "care" | string;
+  id: "accuracy" | "integrity" | "care" | "vision" | "mission" | "features" | string;
+  icon?: string;
   title: string;
   titleAr: string;
   description: string;
@@ -401,6 +425,7 @@ export interface AboutPageResponse {
       seo?: SeoMetadata;
       hero: AboutHeroData;
       story: AboutStoryData;
+      founder?: AboutFounderData;
       values: AboutValuesData;
       cta: AboutCtaData;
     }

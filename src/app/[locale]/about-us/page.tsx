@@ -86,9 +86,12 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
 
   // Using standard colors and icons dynamic from API
   const colorMap: Record<string, string> = {
-    accuracy: "bg-[#1a658d]/10",
-    integrity: "bg-[#b9292f]/10",
-    care: "bg-green-100"
+    accuracy: "bg-[#1a658d]/10 text-[#1a658d] dark:text-sky-400",
+    integrity: "bg-[#b9292f]/10 text-[#b9292f] dark:text-red-400",
+    care: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+    vision: "bg-[#1a658d]/10 text-[#1a658d] dark:text-sky-400",
+    mission: "bg-[#b9292f]/10 text-[#b9292f] dark:text-red-400",
+    features: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
   };
 
   const aboutJsonLd = {
@@ -107,17 +110,19 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
       <main>
         {/* Hero Section */}
         <section className="relative h-[400px] w-full overflow-hidden bg-[#1a658d] dark:bg-slate-800">
-          {aboutData.hero.image ? (
-            <Image
-              src={aboutData.hero.image}
-              alt="New Lab Team"
-              fill
-              className="object-cover opacity-40"
-              priority
-            />
-          ) : (
-            <div className="absolute inset-0 bg-slate-300 dark:bg-slate-700 animate-pulse opacity-40" />
-          )}
+          <Image
+            src={
+              aboutData.hero.image
+                ? aboutData.hero.image.startsWith("/files/") || aboutData.hero.image.startsWith("/private/files/")
+                  ? `${(process.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "")}${aboutData.hero.image}`
+                  : aboutData.hero.image
+                : "/about-hero.jpg"
+            }
+            alt="New Lab Team"
+            fill
+            className="object-cover opacity-40"
+            priority
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/50 to-transparent" />
           
           <div className="absolute inset-0 flex items-center justify-center">
@@ -143,7 +148,7 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
         </section>
 
         {/* Story Section */}
-        <OurStory data={aboutData.story} />
+        <OurStory data={aboutData.story} founder={aboutData.founder || aboutData.story?.founder} />
 
         {/* Values Section */}
         <section className="bg-white py-24 dark:bg-slate-800">
@@ -160,8 +165,8 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
                   key={value.id}
                   className="flex flex-col items-center text-center p-8 rounded-2xl bg-slate-50 transition-all hover:shadow-lg dark:bg-slate-900"
                 >
-                  <div className={`mb-6 flex h-16 w-16 items-center justify-center rounded-2xl ${colorMap[value.id] || "bg-[#1a658d]/10"}`}>
-                    <DynamicIcon name={(value as any).icon || value.id} className={`h-6 w-6 ${colorMap[value.id] ? '' : 'text-[#1a658d]'}`} />
+                  <div className={`mb-6 flex h-16 w-16 items-center justify-center rounded-2xl ${colorMap[value.id] || "bg-[#1a658d]/10 text-[#1a658d] dark:text-sky-400"}`}>
+                    <DynamicIcon name={(value as any).icon || value.id} className="h-6 w-6" />
                   </div>
                   <h3 className="mb-3 text-xl font-bold text-slate-900 dark:text-white flex justify-center w-full">
                     {(isRTL ? value.titleAr : value.title) || (
